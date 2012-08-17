@@ -6,7 +6,7 @@ from sqlalchemy.schema import ForeignKey, UniqueConstraint
 
 class GameDepVotes(Base):
     __tablename__ = 'gamedepvotes'
-    __table_args__ = (UniqueConstraint('user_id', 'post_id'),
+    __table_args__ = (UniqueConstraint('user_id', 'game_id'),
                       {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
 
     id = Column(Integer, primary_key=True)
