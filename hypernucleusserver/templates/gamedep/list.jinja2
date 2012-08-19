@@ -1,0 +1,19 @@
+{% extends "main.jinja2" %}
+{% block title %} - List {{ captype }}{% endblock %}
+{% block content %}
+<h2>List {{ captype }}</h2>
+<p><form action="/redirect/gamedep_edit/{{ type }}" method="post">
+  Add a new {{ gamedeptypetwo }}: <input type="text" name="page_id" />
+  <input type="submit" value="Submit" />
+</form></p>
+<table>
+    <tr>
+        <th>{{ captype }} Name</th>
+    </tr>
+    {% for page in pages %}
+    <tr>
+        <td><a href="/gamedep/{{ type }}/item/{{ page }}">{{ page }}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

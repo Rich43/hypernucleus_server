@@ -1,0 +1,77 @@
+{% extends "main.jinja2" %}
+{% from "widgets/comments.jinja2" import comments %}
+{% from "widgets/vote_count.jinja2" import vote_count %}
+{% block title %} - Viewing {{ page_id }}{% endblock %}
+{% block content %}
+    <p>{{ dbpage.id }} </p>
+    <p>
+        Module Name: {{ dbpage.name }} 
+    </p>
+    <p>
+        Project name: {{ dbpage.display_name }}
+    </p>
+    <p>
+        Project description: {{ dbpage.description }}
+    </p>
+    <p>
+        Dependency list (<a href="/gamedep/{{ type }}/adddep/{{ page_id }}">Add</a>):
+        {% for dep in dbpage.dependencies %}
+        <ul>
+            <li>ID: {{ dep.page_obj.id }}</li>
+            <li>Name: {{ dep.page_obj.name }}</li>
+            <li>Version: {{ dep.rev_obj.version }}</li>
+            <li><a href="/gamedep/{{ type }}/deldep/{{ page_id }}/{{ dep.page_obj.id }}">Delete</a></li>
+        </ul>
+        {% endfor %}
+    </p>
+    <p>
+        Picture list (<a href="/gamedep/{{ type }}/addpic/{{ page_id }}">Add</a>):
+        {% for pic in dbpage.picture %}
+        <ul>
+            <li>ID: {{ pic.id }}</li>
+            <li>Link: <img src="/outputs/file/{{pic.id}}" alt="{{pic.name}}" /></li>
+            <li><a href="/gamedep/{{ type }}/delpic/{{ page_id }}/{{ pic.id }}">Delete</a></li>
+        </ul>
+        {% endfor %}
+    </p>
+    <p>
+    Version list:
+    <p><a href="/gamedep/{{ type }}/edit_revision/{{ page_id }}">Add a new version</a></p>
+    <ul>
+    {% for rev in dbpage.revisions %}
+    <li>{{ rev.version }}
+        <ul>
+            <li><a href="/gamedep/{{ type }}/edit_revision/{{ page_id }}/{{ rev.id }}">Edit</a></li>
+            <li>Module Type: {{ rev.moduletype.name }}</li>
+            <li>
+                Published: {{ rev.published }}
+                (<a href="/gamedep/{{ type }}/published/{{ page_id }}/{{ rev.id }}">{% if rev.published -%}
+                Unpublish
+                {%- else -%}
+                Publish
+                {%- endif %}</a>)
+            </li>
+            {% if type == "games" %}
+            <li>Source Code (<a href="/gamedep/{{ type }}/addsrc/{{ page_id }}/{{ rev.id }}">Edit</a>): {{ rev.file_obj.name }}</li>
+            {% endif %}
+            <li>Binarys (<a href="/gamedep/{{ type }}/addbin/{{ page_id }}/{{ rev.id }}">Add</a>)</li>
+            {% for bin in rev.binary %}
+            <ul>
+                <li>{{ bin.id }}</li>
+                <li><a href="/outputs/file/{{bin.file_obj.id}}">Download</a></li>
+                <li>Edit: {{ bin.file_obj.name }} (<a href="/gamedep/{{ type }}/editbin/{{ page_id }}/{{ rev.id }}/{{ bin.id }}/1">Edit</a>)</li>
+                <li>Operating System: {{ bin.operatingsystem_obj.name }} (<a href="/gamedep/{{ type }}/editbin/{{ page_id }}/{{ rev.id }}/{{ bin.id }}/2">Edit</a>)</li>
+                <li>Arch: {{ bin.architecture_obj.name }} (<a href="/gamedep/{{ type }}/editbin/{{ page_id }}/{{ rev.id }}/{{ bin.id }}/2">Edit</a>)</li>
+                <li><a href="/gamedep/{{ type }}/delbin/{{ page_id }}/{{ rev.id }}/{{ bin.id }}">Delete</a></li>
+            </ul>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+    </ul>
+    </p>
+    <p>
+        <a href="/gamedep/{{ type }}/edit/{{ page_id }}">Edit</a> | 
+        <a href="/gamedep/{{ type }}/delete/{{ page_id }}">Delete</a>
+    </p>
+{% endblock %}
