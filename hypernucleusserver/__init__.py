@@ -37,4 +37,4 @@ def includeme(config):
                      '/gamedep/{type}/delbin/{page_id}/{revision}/{binary_id}')
     config.add_route('gamedep_del_pic', 
                      '/gamedep/{type}/delpic/{page_id}/{pic_id}')
-
+    config.scan('hypernucleusserver.views')
