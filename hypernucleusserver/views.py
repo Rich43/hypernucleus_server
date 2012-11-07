@@ -7,12 +7,12 @@ from .errwarninfo import (INFO_PIC_ADDED, INFO_PIC_DELETED, INFO_SOURCE_UPLOADED
     INFO_REVISION_UPDATED, INFO_REVISION_CREATED)
 from .lib.gamedeplib import GameDepLib, GameDepNotFound
 from .lib.outputlib import OutputLib, FileIterable
+from .models import GameDepTags
 from deform.exception import ValidationFailure
 from deform.form import Form
 from pyracms.errwarninfo import (INFO_UPDATED, INFO, INFO_CREATED, INFO_DELETED, 
     ERROR_NOT_FOUND, ERROR)
 from pyracms.lib.helperlib import get_username, redirect, rapid_deform
-from pyracms.lib.taglib import TagLib, GAMEDEP
 from pyracms.lib.userlib import UserLib
 from pyramid.exceptions import NotFound
 from pyramid.httpexceptions import HTTPNotModified, HTTPFound
@@ -21,7 +21,8 @@ from pyramid.view import view_config
 from string import capwords
 import hashlib
 import transaction
-
+import pyracms.lib.taglib as taglib
+taglib.Tags = GameDepTags
 olib = OutputLib()
 u = UserLib()
 
@@ -133,7 +134,7 @@ def gamedep_edit(context, request):
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
-    t = TagLib(GAMEDEP)
+    t = taglib.TagLib(taglib.GAMEDEP)
     try:
         dbpage = g.show(page_id)[0]
         dbdescription = dbpage.description
