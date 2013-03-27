@@ -1,5 +1,6 @@
 from ..models import (GameDepModuleType, OperatingSystems, Architectures, 
-    GameDepBinary, GameDepPage, GameDepRevision, GameDepType, GameDepDependency)
+    GameDepBinary, GameDepPage, GameDepRevision, GameDepType, GameDepTags, 
+    GameDepDependency)
 from pyracms.lib.filelib import AlchemyIO
 from pyracms.lib.taglib import TagLib, GAMEDEP
 from pyracms.models import DBSession
@@ -63,7 +64,7 @@ class GameDepLib():
         if not gamedep_type in [GAME, DEP]:
             raise InvalidGameDepType
         self.gamedep_type = gamedep_type
-        self.t = TagLib(GAMEDEP)
+        self.t = TagLib(GameDepTags, GAMEDEP)
         
     def get_gamedeptype(self):
         if self.gamedep_type == GAME:

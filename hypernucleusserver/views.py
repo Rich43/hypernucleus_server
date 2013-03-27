@@ -20,9 +20,8 @@ from pyramid.url import route_url, current_route_url
 from pyramid.view import view_config
 from string import capwords
 import hashlib
-import transaction
 import pyracms.lib.taglib as taglib
-taglib.Tags = GameDepTags
+import transaction
 olib = OutputLib()
 u = UserLib()
 
@@ -134,7 +133,7 @@ def gamedep_edit(context, request):
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
-    t = taglib.TagLib(taglib.GAMEDEP)
+    t = taglib.TagLib(GameDepTags, taglib.GAMEDEP)
     try:
         dbpage = g.show(page_id)[0]
         dbdescription = dbpage.description
