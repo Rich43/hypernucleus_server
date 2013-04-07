@@ -1,8 +1,9 @@
 from ..models import (OperatingSystems, Architectures, GameDepModuleType, 
     GameDepType)
-from pyracms.lib.userlib import UserLib
 from pyracms.factory import RootFactory
-from pyracms.models import Base, DBSession, Settings
+from pyracms.lib.menulib import MenuLib
+from pyracms.lib.userlib import UserLib
+from pyracms.models import Base, DBSession, Settings, Menu
 from pyramid.paster import get_appsettings, setup_logging
 from pyramid.security import Everyone, Allow
 from sqlalchemy import engine_from_config
@@ -107,3 +108,9 @@ def main(argv=sys.argv):
              "A new version (%s) has been created for %s.",
              "ERROR_INVALID_BINARY_ID": "Invalid Binary ID and/or Edit Type."}
         add_dict(d)
+        
+        m = MenuLib()
+        group = m.show_group("main_menu")
+        DBSession.add(Menu("Games", "/gamedep/games/list", 3, group, Everyone))
+        DBSession.add(Menu("Dependencies", "/gamedep/dependencies/list", 4, 
+                         group, Everyone))
