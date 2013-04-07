@@ -1,19 +1,15 @@
 from .deform_schemas.gamedep import (EditGameDepSchema, AddPictureSchema, 
     AddSourceSchema, AddBinarySchema, EditBinarySchema, EditOSArchSchema, 
     EditDependencySchemaOne, EditDependencySchemaTwo, EditRevisionSchema)
-from .errwarninfo import (INFO_PIC_ADDED, INFO_PIC_DELETED, INFO_SOURCE_UPLOADED, 
-    ERROR_INVALID_BINARY_ID, INFO_BINARY_ADDED, INFO_BINARY_UPDATED, 
-    INFO_BINARY_DELETED, INFO_DEPENDENCY_ADDED, INFO_DEPENDENCY_DELETED, 
-    INFO_REVISION_UPDATED, INFO_REVISION_CREATED)
 from .lib.gamedeplib import GameDepLib, GameDepNotFound
 from .lib.outputlib import OutputLib, FileIterable
 from .models import GameDepTags
 from deform.exception import ValidationFailure
 from deform.form import Form
-from pyracms.errwarninfo import (INFO_UPDATED, INFO, INFO_CREATED, INFO_DELETED, 
-    ERROR_NOT_FOUND, ERROR)
 from pyracms.lib.helperlib import get_username, redirect, rapid_deform
+from pyracms.lib.settingslib import SettingsLib
 from pyracms.lib.userlib import UserLib
+from pyracms.views import INFO, ERROR
 from pyramid.exceptions import NotFound
 from pyramid.httpexceptions import HTTPNotModified, HTTPFound
 from pyramid.url import route_url, current_route_url
@@ -22,8 +18,10 @@ from string import capwords
 import hashlib
 import pyracms.lib.taglib as taglib
 import transaction
+
 olib = OutputLib()
 u = UserLib()
+s = SettingsLib()
 
 def get_pageid_revision(request):
     """
@@ -123,11 +121,13 @@ def gamedep_edit(context, request):
         tags = deserialized.get("tags")
         if g.exists(page_id):
             g.update(page_id, name, display_name, description, tags)
-            request.session.flash(INFO_UPDATED % page_id, INFO)
+            request.session.flash(s.show_setting("INFO_UPDATED")
+                                  % page_id, INFO)
         else:
             g.create(name, display_name, description, tags,
                      u.show(get_username(request)))
-            request.session.flash(INFO_CREATED % page_id, INFO)
+            request.session.flash(s.show_setting("INFO_CREATED")
+                                  % page_id, INFO)
         return redirect(request, "gamedep_item", page_id=name, 
                         type=gamedeptype)
     gamedeptype = request.matchdict.get('type')
@@ -157,9 +157,10 @@ def gamedep_delete(context, request):
     g = GameDepLib(gamedeptype)
     if g.exists(page_id):
         g.delete(page_id)
-        request.session.flash(INFO_DELETED, INFO)
+        request.session.flash(s.show_setting("INFO_DELETED"), INFO)
     else:
-        request.session.flash(ERROR_NOT_FOUND % page_id, ERROR)
+        request.session.flash(s.show_setting("ERROR_NOT_FOUND") 
+                              % page_id, ERROR)
     return redirect(request, "gamedeplist", page=page_id)
 
 @view_config(route_name='gamedep_add_pic', permission='gamedep_add_picture',
@@ -173,7 +174,8 @@ def gamedep_add_picture(context, request):
         picture = deserialized.get("picture")
         g.create_picture(page_id, picture['fp'], 
                          picture['mimetype'], picture['filename'])
-        request.session.flash(INFO_PIC_ADDED % picture['filename'], INFO)
+        request.session.flash(s.show_setting("INFO_PIC_ADDED")
+                              % picture['filename'], INFO)
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     return rapid_deform(context, request, AddPictureSchema, 
@@ -189,9 +191,11 @@ def gamedep_delete_picture(context, request):
     try:
         pic = g.show_picture(g.show(page_id)[0], pic_id)
         g.delete_picture(page_id, pic_id)
-        request.session.flash(INFO_PIC_DELETED % pic.name, ERROR)
+        request.session.flash(s.show_setting("INFO_PIC_DELETED") 
+                              % pic.name, ERROR)
     except GameDepNotFound:
-        request.session.flash(ERROR_NOT_FOUND % page_id, ERROR)
+        request.session.flash(s.show_setting("ERROR_NOT_FOUND")
+                              % page_id, ERROR)
     return redirect(request, "gamedep_item", page_id=page_id, 
                     type=gamedeptype)
 
@@ -206,8 +210,8 @@ def gamedep_add_source(context, request):
         source = deserialized.get("source")
         g.create_source(page_id, revision, source['fp'], 
                          source['mimetype'], source['filename'])
-        request.session.flash(INFO_SOURCE_UPLOADED % source['filename'], 
-                              INFO)
+        request.session.flash(s.show_setting("INFO_SOURCE_UPLOADED") 
+                              % source['filename'], INFO)
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     gamedeptype = request.matchdict.get('type')
@@ -261,7 +265,7 @@ def gamedep_add_binary(context, request):
     elif binary_id and edittype == "2":
         schema = EditOSArchSchema()
     else:
-        request.session.flash(ERROR_INVALID_BINARY_ID, ERROR)
+        request.session.flash(s.show_setting("ERROR_INVALID_BINARY_ID"), ERROR)
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     
@@ -287,13 +291,13 @@ def gamedep_add_binary(context, request):
             g.create_binary(page_id, revision, operatingsystem, architecture, 
                             binary['fp'], binary['mimetype'], 
                             binary['filename'])
-            request.session.flash(INFO_BINARY_ADDED % binary['filename'], 
-                                  INFO)
+            request.session.flash(s.show_setting("INFO_BINARY_ADDED")
+                                  % binary['filename'], INFO)
         else:
             g.update_binary(page_id, revision, binary_id, operatingsystem, 
                             architecture, binary)
-            request.session.flash(INFO_BINARY_UPDATED % binary['filename'], 
-                                  INFO)
+            request.session.flash(s.show_setting("INFO_BINARY_UPDATED")
+                                  % binary['filename'], INFO)
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     # Display default form
@@ -311,9 +315,11 @@ def gamedep_delete_binary(context, request):
     try:
         bin_name = g.show_binary(binid).name
         g.delete_binary(page_id, revision, binid)
-        request.session.flash(INFO_BINARY_DELETED % bin_name, INFO)
+        request.session.flash(s.show_setting("INFO_BINARY_DELETED") 
+                              % bin_name, INFO)
     except GameDepNotFound:
-        request.session.flash(ERROR_NOT_FOUND % page_id, ERROR)
+        request.session.flash(s.show_setting("ERROR_NOT_FOUND")
+                              % page_id, ERROR)
     return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
 
@@ -342,7 +348,8 @@ def gamedep_add_dependency(context, request):
                 g.create_dependency(page_id, dep_id, form_rev_id)
             dep_name = g.show_dependency(g.show(page_id)[0], 
                                          form_dep_id).page_obj.name
-            request.session.flash(INFO_DEPENDENCY_ADDED % dep_name, INFO)
+            request.session.flash(s.show_setting("INFO_DEPENDENCY_ADDED") 
+                                  % dep_name, INFO)
             return redirect(request, "gamedep_item", page_id=page_id, 
                             type=gamedeptype)
     depid = request.matchdict.get('depid')
@@ -367,9 +374,11 @@ def gamedep_delete_dependency(context, request):
         dep_name = g.show_dependency(g.show(page_id)[0], 
                                      depid).page_obj.name
         g.delete_dependency(page_id, depid)
-        request.session.flash(INFO_DEPENDENCY_DELETED % dep_name, INFO)
+        request.session.flash(s.show_setting("INFO_DEPENDENCY_DELETED") 
+                              % dep_name, INFO)
     except GameDepNotFound:
-        request.session.flash(ERROR_NOT_FOUND % page_id, ERROR)
+        request.session.flash(s.show_setting("ERROR_NOT_FOUND") 
+                              % page_id, ERROR)
     return redirect(request, "gamedep_item", page_id=page_id, 
                             type=gamedeptype)
 
@@ -389,12 +398,12 @@ def gamedep_edit_revision(context, request):
         frmmodule_type = deserialized.get("module_type")
         try:
             g.update_revision(page_id, revision, frmversion, frmmodule_type)
-            request.session.flash(INFO_REVISION_UPDATED % (frmversion, 
-                                                           page_id), INFO)
+            request.session.flash(s.show_setting("INFO_REVISION_UPDATED") 
+                                  % (frmversion, page_id), INFO)
         except GameDepNotFound:
             g.create_revision(page_id, frmversion, frmmodule_type)
-            request.session.flash(INFO_REVISION_CREATED % (frmversion, 
-                                                           page_id), INFO)
+            request.session.flash(s.show_setting("INFO_REVISION_CREATED") 
+                                  % (frmversion, page_id), INFO)
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     gamedeptype = request.matchdict.get('type')
