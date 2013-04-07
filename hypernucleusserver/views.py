@@ -18,6 +18,7 @@ from string import capwords
 import hashlib
 import pyracms.lib.taglib as taglib
 import transaction
+from hypernucleusserver.lib.gamedeplib import AlreadyVoted
 
 olib = OutputLib()
 u = UserLib()
@@ -422,3 +423,20 @@ def gamedep_edit_revision(context, request):
                         gamedep_edit_revision_submit, 
                         version=dbversion, module_type=dbmoduletype_name, 
                         gamedep_type=gamedeptype)
+
+@view_config(route_name='gamedep_add_vote', permission='vote')
+def gamedep_add_vote(context, request):
+    """
+    Add a vote to a gamedep
+    """
+    vote_id = request.matchdict.get('vote_id')
+    like = request.matchdict.get('like').lower() == "true"
+    gamedeptype = request.matchdict.get('type')
+    gd_lib = GameDepLib(gamedeptype)
+    gd = gd_lib.show(vote_id, no_revision_error=False)[0]
+    try:
+        gd_lib.add_vote(gd, u.show(get_username(request)), like)
+        request.session.flash(s.show_setting("INFO_VOTE"), INFO)
+    except AlreadyVoted:
+        request.session.flash(s.show_setting("ERROR_VOTE"), ERROR)
+    return redirect(request, "article_read", page_id=vote_id)

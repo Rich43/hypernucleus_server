@@ -1,10 +1,13 @@
 from ..models import (GameDepModuleType, OperatingSystems, Architectures, 
     GameDepBinary, GameDepPage, GameDepRevision, GameDepType, GameDepTags, 
     GameDepDependency)
+from hypernucleusserver.models import GameDepVotes
 from pyracms.lib.filelib import AlchemyIO
 from pyracms.lib.taglib import TagLib, GAMEDEP
 from pyracms.models import DBSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
+import transaction
 
 class GameDepNotFound(Exception):
     pass
@@ -22,6 +25,9 @@ class GameDepFound(Exception):
     pass
 
 class InvalidGameDepType(Exception):
+    pass
+
+class AlreadyVoted(Exception):
     pass
 
 GAME = "games"
@@ -476,3 +482,17 @@ class GameDepLib():
                 return (page, rev_result)
             except NoResultFound:
                 raise GameDepNotFound
+            
+    def add_vote(self, db_obj, user, like):
+        """
+        Add a vote to the database
+        """
+        
+        vote = GameDepVotes(user, like)
+        vote.game = db_obj
+        try:
+            DBSession.add(vote)
+            transaction.commit()
+        except IntegrityError:
+            transaction.abort()
+            raise AlreadyVoted
