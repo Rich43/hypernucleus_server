@@ -81,11 +81,6 @@ def deferred_operating_system_validator(node, kw):
     return OneOf(g.list_operatingsystems(False))
 
 @deferred
-def deferred_operating_system_default(node, kw):
-    g = GameDepLib(kw.get('gamedep_type'))
-    return g.list_operatingsystems()[0]
-
-@deferred
 def deferred_architecture_widget(node, kw):
     g = GameDepLib(kw.get('gamedep_type'))
     return RadioChoiceWidget(values=g.list_architectures())
@@ -94,37 +89,6 @@ def deferred_architecture_widget(node, kw):
 def deferred_architecture_validator(node, kw):
     g = GameDepLib(kw.get('gamedep_type'))
     return OneOf(g.list_architectures(False))
-
-@deferred
-def deferred_architecture_default(node, kw):
-    g = GameDepLib(kw.get('gamedep_type'))
-    return g.list_architectures()[0]
-
-@deferred
-def deferred_edit_name(node, kw):
-    return kw.get('name')
-
-@deferred
-def deferred_edit_display_name(node, kw):
-    return kw.get('display_name')
-
-@deferred
-def deferred_edit_description(node, kw):
-    return kw.get('description')
-
-@deferred
-def deferred_edit_tags_default(node, kw):
-    return kw.get('tags')
-
-@deferred
-def deferred_edit_operating_system_default(node, kw):
-    bin_obj = kw.get('bin_obj')
-    return str(bin_obj.operatingsystem_obj.id)
-
-@deferred
-def deferred_edit_architecture_default(node, kw):
-    bin_obj = kw.get('bin_obj')
-    return str(bin_obj.architecture_obj.id)
 
 @deferred
 def deferred_edit_dependency_one_widget(node, kw):
@@ -149,14 +113,6 @@ def deferred_edit_dependency_two_validator(node, kw):
     return OneOf(g.revision_dropdown(depid, False))
 
 @deferred
-def deferred_revision_version(node, kw):
-    return kw.get('version')
-
-@deferred
-def deferred_revision_module_type(node, kw):
-    return kw.get('module_type')
-
-@deferred
 def deferred_revision_module_type_widget(node, kw):
     g = GameDepLib(kw.get('gamedep_type'))
     return RadioChoiceWidget(values=g.list_moduletypes())
@@ -167,42 +123,31 @@ def deferred_revision_module_type_validator(node, kw):
     return OneOf(g.list_moduletypes(False))
 
 class AddPictureSchema(MappingSchema):
-    picture = SchemaNode(FileData(),
-                        widget=FileUploadWidget(TmpStore()),
-                        validator=valid_picture)
+    picture = SchemaNode(FileData(), widget=FileUploadWidget(TmpStore()),
+                         validator=valid_picture)
 
 class AddSourceSchema(MappingSchema):
-    source = SchemaNode(FileData(),
-                        widget=FileUploadWidget(TmpStore()),
+    source = SchemaNode(FileData(), widget=FileUploadWidget(TmpStore()),
                         validator=valid_source_file)
 
 class EditGameDepSchema(MappingSchema):
-    name = SchemaNode(String(),
-                        default=deferred_edit_name,
-                        widget=TextInputWidget(size=40),
-                        validator=Regex("^[a-zA-Z_0-9]*$", 
-                            "Only characters a-z A-Z 0-9 _ are accepted."))
-    display_name = SchemaNode(String(),
-                        default=deferred_edit_display_name,
-                        widget=TextInputWidget(size=40))
-    description = SchemaNode(String(), 
-                        default=deferred_edit_description,
-                        widget=TextAreaWidget(cols=80, rows=20))
+    name = SchemaNode(String(), widget=TextInputWidget(size=40),
+                      validator=Regex("^[a-zA-Z_0-9]*$", 
+                                      "Only characters a-z A-Z 0-9 _ " + 
+                                      "are accepted."))
+    display_name = SchemaNode(String(), widget=TextInputWidget(size=40))
+    description = SchemaNode(String(), widget=TextAreaWidget(cols=80, rows=20))
     tags = SchemaNode(String(), widget=TextInputWidget(size=40),
-                      missing='', default=deferred_edit_tags_default)
+                      missing='')
     
 class AddBinarySchema(MappingSchema):
-    binary = SchemaNode(FileData(),
-                        widget=FileUploadWidget(TmpStore()),
+    binary = SchemaNode(FileData(), widget=FileUploadWidget(TmpStore()),
                         validator=valid_binary_file)
-    operatingsystem = SchemaNode(String(),
-            widget=deferred_operating_system_widget,
-            validator=deferred_operating_system_validator,
-            default=deferred_operating_system_default)
-    architecture = SchemaNode(String(),
-            widget=deferred_architecture_widget,
-            validator=deferred_architecture_validator,
-            default=deferred_architecture_default)
+    operatingsystem = SchemaNode(String(), 
+                                 widget=deferred_operating_system_widget,
+                                 validator=deferred_operating_system_validator)
+    architecture = SchemaNode(String(), widget=deferred_architecture_widget,
+                              validator=deferred_architecture_validator)
 
 class EditBinarySchema(MappingSchema):
     binary = SchemaNode(FileData(),
@@ -210,32 +155,24 @@ class EditBinarySchema(MappingSchema):
                         validator=valid_binary_file)
 
 class EditOSArchSchema(MappingSchema):
-    operatingsystem = SchemaNode(String(),
-            widget=deferred_operating_system_widget,
-            validator=deferred_operating_system_validator,
-            default=deferred_edit_operating_system_default)
-    architecture = SchemaNode(String(),
-            widget=deferred_architecture_widget,
-            validator=deferred_architecture_validator,
-            default=deferred_edit_architecture_default)
+    operatingsystem = SchemaNode(String(), 
+                                 widget=deferred_operating_system_widget,
+                                 validator=deferred_operating_system_validator)
+    architecture = SchemaNode(String(), widget=deferred_architecture_widget,
+                              validator=deferred_architecture_validator)
 
 class EditDependencySchemaOne(MappingSchema):
-    dependency = SchemaNode(String(),
+    dependency = SchemaNode(String(), 
                             widget=deferred_edit_dependency_one_widget,
                             validator=deferred_edit_dependency_one_validator)
 
 class EditDependencySchemaTwo(MappingSchema):
-    revision = SchemaNode(String(), 
-                            widget=deferred_edit_dependency_two_widget,
-                            default="-1",
-                            validator=deferred_edit_dependency_two_validator)
+    revision = SchemaNode(String(), widget=deferred_edit_dependency_two_widget,
+                          default="-1",
+                          validator=deferred_edit_dependency_two_validator)
 
 class EditRevisionSchema(MappingSchema):
-    version = SchemaNode(Decimal(),
-                        default=deferred_revision_version,
-                        widget=TextInputWidget(size=40))
-    module_type = SchemaNode(String(),
-                    name="moduletype",
-                    default=deferred_revision_module_type,
-                    widget=deferred_revision_module_type_widget,
-                    validator=deferred_revision_module_type_validator)
+    version = SchemaNode(Decimal(), widget=TextInputWidget(size=40))
+    module_type = SchemaNode(String(), name="moduletype",
+                             widget=deferred_revision_module_type_widget,
+                             validator=deferred_revision_module_type_validator)
