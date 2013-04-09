@@ -1,6 +1,6 @@
 from ..lib.gamedeplib import GameDepLib
-from colander import (MappingSchema, SchemaNode, String, Decimal, OneOf, deferred, 
-    Invalid, Regex)
+from colander import (MappingSchema, SchemaNode, String, Decimal, OneOf, 
+    deferred, Invalid, Regex)
 from deform import FileData
 from deform.widget import (TextAreaWidget, TextInputWidget, RadioChoiceWidget, 
     FileUploadWidget, SelectWidget)
@@ -150,8 +150,7 @@ class AddBinarySchema(MappingSchema):
                               validator=deferred_architecture_validator)
 
 class EditBinarySchema(MappingSchema):
-    binary = SchemaNode(FileData(),
-                        widget=FileUploadWidget(TmpStore()),
+    binary = SchemaNode(FileData(), widget=FileUploadWidget(TmpStore()),
                         validator=valid_binary_file)
 
 class EditOSArchSchema(MappingSchema):
