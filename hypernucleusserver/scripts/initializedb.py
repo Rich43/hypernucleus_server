@@ -1,5 +1,4 @@
-from ..models import (OperatingSystems, Architectures, GameDepModuleType, 
-    GameDepType)
+from ..models import OperatingSystems, Architectures
 from pyracms.factory import RootFactory
 from pyracms.lib.menulib import MenuLib
 from pyracms.lib.userlib import UserLib
@@ -30,37 +29,25 @@ def main(argv=sys.argv):
         u = UserLib()
         admin_user = u.show("admin")
         # Add Operating Systems
-        DBSession.append(OperatingSystems("pi", "Platform Independent"))
-        DBSession.append(OperatingSystems("win", "Windows"))
-        DBSession.append(OperatingSystems("mac", "Mac OS X"))
-        DBSession.append(OperatingSystems("lin", "Linux"))
-        DBSession.append(OperatingSystems("sol", "Solaris"))
-        DBSession.append(OperatingSystems("fbsd", "FreeBSD"))
-        DBSession.append(OperatingSystems("nbsd", "NetBSD"))
-        DBSession.append(OperatingSystems("obsd", "OpenBSD"))
+        DBSession.add(OperatingSystems("pi", "Platform Independent"))
+        DBSession.add(OperatingSystems("win", "Windows"))
+        DBSession.add(OperatingSystems("mac", "Mac OS X"))
+        DBSession.add(OperatingSystems("lin", "Linux"))
+        DBSession.add(OperatingSystems("sol", "Solaris"))
+        DBSession.add(OperatingSystems("fbsd", "FreeBSD"))
+        DBSession.add(OperatingSystems("nbsd", "NetBSD"))
+        DBSession.add(OperatingSystems("obsd", "OpenBSD"))
         
         # Add Architectures
-        DBSession.append(Architectures("pi", "Platform Independent"))
-        DBSession.append(Architectures("i386", "32bit X86"))
-        DBSession.append(Architectures("x86_64", "64bit X86"))
-        DBSession.append(Architectures("arm", "ARM Little Endian"))
-        DBSession.append(Architectures("armeb", "ARM Big Endian"))
-        DBSession.append(Architectures("ppc", "32bit PowerPC"))
-        DBSession.append(Architectures("ppc64", "64bit PowerPC"))
-        DBSession.append(Architectures("sparc", "32bit SPARC"))
-        DBSession.append(Architectures("sparc64", "64bit SPARC"))
-    
-        # Add Module types
-        DBSession.append(GameDepModuleType("file",
-                            "Python module that is initialised " +
-                            "with (for example) foo.py"))
-        DBSession.append(GameDepModuleType("folder",
-                            "Python module that is initialised " +
-                            "with __init__.py"))
-    
-        # Add the GameDepTypes
-        DBSession.append(GameDepType("game"))
-        DBSession.append(GameDepType("dep"))
+        DBSession.add(Architectures("pi", "Platform Independent"))
+        DBSession.add(Architectures("i386", "32bit X86"))
+        DBSession.add(Architectures("x86_64", "64bit X86"))
+        DBSession.add(Architectures("arm", "ARM Little Endian"))
+        DBSession.add(Architectures("armeb", "ARM Big Endian"))
+        DBSession.add(Architectures("ppc", "32bit PowerPC"))
+        DBSession.add(Architectures("ppc64", "64bit PowerPC"))
+        DBSession.add(Architectures("sparc", "32bit SPARC"))
+        DBSession.add(Architectures("sparc64", "64bit SPARC"))
     
         # Default Groups
         u.create_group("gamedep", "Ability to Add, Edit and Delete" +
@@ -111,6 +98,6 @@ def main(argv=sys.argv):
         
         m = MenuLib()
         group = m.show_group("main_menu")
-        DBSession.add(Menu("Games", "/gamedep/games/list", 3, group, Everyone))
-        DBSession.add(Menu("Dependencies", "/gamedep/dependencies/list", 4, 
+        DBSession.add(Menu("Games", "/gamedep/game/list", 3, group, Everyone))
+        DBSession.add(Menu("Dependencies", "/gamedep/dep/list", 4, 
                          group, Everyone))

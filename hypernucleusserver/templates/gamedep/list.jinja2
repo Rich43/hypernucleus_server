@@ -1,14 +1,14 @@
 {% extends "main.jinja2" %}
-{% block title %} - List {{ captype }}{% endblock %}
+{% block title %} - List {{ captype }}{% if type == "dep" %}ies{% endif %}{% endblock %}
 {% block content %}
-<h2>List {{ captype }}</h2>
+<h2>List {{ captype }}{% if type == "dep" %}ies{% endif %}</h2>
 <p><form action="/redirect/gamedep_edit/{{ type }}" method="post">
-  Add a new {{ gamedeptypetwo }}: <input type="text" name="page_id" />
+  Add a new {{ gamedeptypetwo }}{% if type == "dep" %}y{% endif %}: <input type="text" name="page_id" />
   <input type="submit" value="Submit" />
 </form></p>
 <table>
     <tr>
-        <th>{{ captype }} Name</th>
+        <th>{{ captype }}{% if type == "dep" %}y{% endif %} Name</th>
     </tr>
     {% for page in pages %}
     <tr>

@@ -40,7 +40,7 @@
     <li>{{ rev.version }}
         <ul>
             <li><a href="/gamedep/{{ type }}/edit_revision/{{ page_id }}/{{ rev.id }}">Edit</a></li>
-            <li>Module Type: {{ rev.moduletype.name }}</li>
+            <li>Module Type: {{ rev.moduletype }}</li>
             <li>
                 Published: {{ rev.published }}
                 (<a href="/gamedep/{{ type }}/published/{{ page_id }}/{{ rev.id }}">{% if rev.published -%}

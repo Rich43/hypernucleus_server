@@ -1,7 +1,8 @@
 from .deform_schemas.gamedep import (EditGameDepSchema, AddPictureSchema, 
     AddSourceSchema, AddBinarySchema, EditBinarySchema, EditOSArchSchema, 
     EditDependencySchemaOne, EditDependencySchemaTwo, EditRevisionSchema)
-from .lib.gamedeplib import GameDepLib, GameDepNotFound
+from .lib.gamedeplib import (AlreadyVoted, GAME, DEP, GameDepLib, 
+    GameDepNotFound)
 from .lib.outputlib import OutputLib, FileIterable
 from .models import GameDepTags
 from deform.exception import ValidationFailure
@@ -18,7 +19,6 @@ from string import capwords
 import hashlib
 import pyracms.lib.taglib as taglib
 import transaction
-from hypernucleusserver.lib.gamedeplib import AlreadyVoted
 
 olib = OutputLib()
 u = UserLib()
@@ -75,10 +75,10 @@ def output_json(context, request):
 def gamedep_list(context, request):
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
-    gamedeptypetwo = {"games": "game",
-                      "dependencies": "dependency"}.get(gamedeptype)
+    gamedeptypetwo = {GAME: "game",
+                      DEP: "dependenc"}.get(gamedeptype)
     return {'pages': g.list(), 'type': gamedeptype, 
-            'captype': capwords(gamedeptype), 
+            'captype': capwords(gamedeptypetwo), 
             "gamedeptypetwo": gamedeptypetwo}
 
 @view_config(route_name='gamedep_published', permission='gamedep_publish')
@@ -219,7 +219,7 @@ def gamedep_add_source(context, request):
     g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
-    moduletype = g.show(page_id, revision)[1].moduletype.name
+    moduletype = g.show(page_id, revision)[1].moduletype
     
     # Block people from adding source to a dependency
     if gamedeptype != "games":
@@ -396,7 +396,7 @@ def gamedep_edit_revision(context, request):
         gamedeptype = request.matchdict.get('type')
         g = GameDepLib(gamedeptype)
         frmversion = deserialized.get("version")
-        frmmodule_type = deserialized.get("module_type")
+        frmmodule_type = deserialized.get("moduletype")
         try:
             g.update_revision(page_id, revision, frmversion, frmmodule_type)
             request.session.flash(s.show_setting("INFO_REVISION_UPDATED") 
@@ -414,14 +414,14 @@ def gamedep_edit_revision(context, request):
     try:
         dbrevision = g.show(page_id, revision)[1]
         dbversion = dbrevision.version
-        dbmoduletype_name = dbrevision[0].moduletype.name
+        dbmoduletype_name = dbrevision[0].moduletype
     except GameDepNotFound:
         dbrevision = None
         dbversion = 0.1
-        dbmoduletype_name = g.list_moduletypes(False)[0]
+        dbmoduletype_name = "file"
     return rapid_deform(context, request, EditRevisionSchema, 
                         gamedep_edit_revision_submit, 
-                        version=dbversion, module_type=dbmoduletype_name, 
+                        version=dbversion, moduletype=dbmoduletype_name, 
                         gamedep_type=gamedeptype)
 
 @view_config(route_name='gamedep_add_vote', permission='vote')

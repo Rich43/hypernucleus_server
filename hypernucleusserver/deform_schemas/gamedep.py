@@ -6,6 +6,10 @@ from deform.widget import (TextAreaWidget, TextInputWidget, RadioChoiceWidget,
     FileUploadWidget, SelectWidget)
 import zipfile
 #import Image
+module_type_prefix = "Python module that is initialised with "
+module_type = [["file", module_type_prefix + "(for example) foo.py"],
+               ["folder", module_type_prefix + "__init__.py"]]
+module_type_single = [x[0] for x in module_type]
 
 @deferred
 def valid_picture(node, kw):
@@ -114,13 +118,11 @@ def deferred_edit_dependency_two_validator(node, kw):
 
 @deferred
 def deferred_revision_module_type_widget(node, kw):
-    g = GameDepLib(kw.get('gamedep_type'))
-    return RadioChoiceWidget(values=g.list_moduletypes())
+    return RadioChoiceWidget(values=module_type)
 
 @deferred
 def deferred_revision_module_type_validator(node, kw):
-    g = GameDepLib(kw.get('gamedep_type'))
-    return OneOf(g.list_moduletypes(False))
+    return OneOf(module_type_single)
 
 class AddPictureSchema(MappingSchema):
     picture = SchemaNode(FileData(), widget=FileUploadWidget(TmpStore()),

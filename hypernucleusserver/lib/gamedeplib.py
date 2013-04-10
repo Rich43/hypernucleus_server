@@ -1,7 +1,5 @@
-from ..models import (GameDepModuleType, OperatingSystems, Architectures, 
-    GameDepBinary, GameDepPage, GameDepRevision, GameDepType, GameDepTags, 
-    GameDepDependency)
-from hypernucleusserver.models import GameDepVotes
+from ..models import (OperatingSystems, Architectures, GameDepBinary, 
+    GameDepPage, GameDepRevision, GameDepTags, GameDepDependency, GameDepVotes)
 from pyracms.lib.filelib import AlchemyIO
 from pyracms.lib.taglib import TagLib, GAMEDEP
 from pyracms.models import DBSession
@@ -30,14 +28,14 @@ class InvalidGameDepType(Exception):
 class AlreadyVoted(Exception):
     pass
 
-GAME = "games"
-DEP = "dependencies"
+GAME = "game"
+DEP = "dep"
 
 class GameDepLib():
     """
     A library to manage the Games and Dependencies database.
     Usage examples:
-    from hypernucleusserver.controllerlib.gamedeplib import ArticleLib
+    from hypernucleusserver.lib.gamedeplib import GameDepLib
     # Make instance of class for Games
     gd = GameDepLib(GAME)
     # or
@@ -72,23 +70,13 @@ class GameDepLib():
         self.gamedep_type = gamedep_type
         self.t = TagLib(GameDepTags, GAMEDEP)
         
-    def get_gamedeptype(self):
-        if self.gamedep_type == GAME:
-            gamedeptype = DBSession.query(GameDepType).filter_by(
-                                                        name="game").one()
-        else:
-            gamedeptype = DBSession.query(GameDepType).filter_by(
-                                                        name="dep").one()
-        return gamedeptype
-    
     def list(self): #@ReservedAssignment
         """
         List all the pages
         """
         result = set()
-        gamedeptype = self.get_gamedeptype()
         gamedeps = DBSession.query(GameDepPage).filter_by(
-                                gamedeptype_id=gamedeptype.id, deleted=False)
+                                gamedeptype=self.gamedep_type, deleted=False)
         if not gamedeps:
             raise GameDepNotFound
         for gamedep in gamedeps:
@@ -101,8 +89,7 @@ class GameDepLib():
         Raise GameDepFound if page exists
         """
         if not self.exists(name, raise_if_found=True):
-            gamedeptype = self.get_gamedeptype()
-            page = GameDepPage(gamedeptype, name, display_name, owner)
+            page = GameDepPage(self.gamedep_type, name, display_name, owner)
             page.description = description
             self.t.set_tags(page, tags)
             DBSession.add(page)
@@ -133,7 +120,6 @@ class GameDepLib():
         Raise GameDepFound if version exists
         """
         version = float(version)
-        moduletype = self.get_moduletype(moduletype)
         if not self.exists(name, version, raise_if_found=True):
             page, rev = self.show(name, no_revision_error=False)
             rev = GameDepRevision(version, moduletype)
@@ -269,12 +255,10 @@ class GameDepLib():
         Add a new dependency
         """
         dep_id = int(dep_id)
-        gamedeptype = DBSession.query(GameDepType).filter_by(
-                                                        name="dep").one()
         try:
-            dep = DBSession.query(GameDepPage).filter_by(
-                                            gamedeptype_id=gamedeptype.id, 
-                                            deleted=False, id=dep_id).one()
+            dep = DBSession.query(GameDepPage).filter_by(gamedeptype="dep", 
+                                                         deleted=False, 
+                                                         id=dep_id).one()
             if rev_id:
                 rev = DBSession.query(GameDepRevision).filter_by(
                                             id=rev_id).one()
@@ -321,7 +305,6 @@ class GameDepLib():
         Raise GameDepNotFound if page does not exist
         """
         version = float(version)
-        moduletype = self.get_moduletype(moduletype)
         rev = self.show(name, revision)[1]
         rev.version = version
         rev.moduletype = moduletype
@@ -340,10 +323,9 @@ class GameDepLib():
         Return True/False
         """
         try:
-            gamedeptype = self.get_gamedeptype()
             page = DBSession.query(GameDepPage).filter_by(
                                             name=name,
-                                            gamedeptype_id=gamedeptype.id, 
+                                            gamedeptype=self.gamedep_type, 
                                             deleted=False).one()
         except NoResultFound:
             return False
@@ -362,29 +344,6 @@ class GameDepLib():
         """
         page = self.show(name)[0]
         return page.deleted
-        
-    def get_moduletype(self, moduletype):
-        """
-        Get a Module Type row from database.
-        Raise ModuleTypeNotFound if Module Type does not exist.
-        """
-        try:
-            mt = DBSession.query(GameDepModuleType).filter_by(
-                                                        name=moduletype).one()
-            return mt
-        except NoResultFound:
-            raise ModuleTypeNotFound
-        
-    def list_moduletypes(self, with_display_name=True):
-        """
-        Get a Module Type list from database.
-        """
-        mt = DBSession.query(GameDepModuleType)
-        if with_display_name:
-            mtlist = [(x.name, x.display_name) for x in mt]
-        else:
-            mtlist = [x.name for x in mt]
-        return mtlist
     
     def list_operatingsystems(self, with_display_name=True):
         """
@@ -418,10 +377,8 @@ class GameDepLib():
     
     def dependency_dropdown(self, with_display_name=True):
         result = []
-        gamedeptype = DBSession.query(GameDepType).filter_by(
-                                                        name="dep").one()
-        page = DBSession.query(GameDepPage).filter_by(
-                            deleted=False, gamedeptype_id=gamedeptype.id)
+        page = DBSession.query(GameDepPage).filter_by(deleted=False, 
+                                                      gamedeptype="dep")
         for x in page:
             if x.revisions.count():
                 i = 0
@@ -465,10 +422,9 @@ class GameDepLib():
         
         if not revision:
             try:
-                gamedeptype = self.get_gamedeptype()
                 page = DBSession.query(GameDepPage).filter_by(
                                                 name=name,
-                                                gamedeptype_id=gamedeptype.id, 
+                                                gamedeptype=self.gamedep_type, 
                                                 deleted=False).one()
             except NoResultFound:
                 raise GameDepNotFound("NoResultFound")

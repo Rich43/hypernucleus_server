@@ -1,4 +1,4 @@
-from ..models import GameDepPage, GameDepType, Architectures, OperatingSystems
+from ..models import GameDepPage, Architectures, OperatingSystems
 from pyracms.models import Files, DBSession
 from sqlalchemy.orm.exc import NoResultFound
 from xml.etree.ElementTree import Element, SubElement, tostring
@@ -54,8 +54,8 @@ class OutputLib():
         Serialize gamedep into xml
         """
         root = Element("hypernucleus")
-        gametype = DBSession.query(GameDepType).filter_by(name="game").one()
-        deptype = DBSession.query(GameDepType).filter_by(name="dep").one()
+        gametype = "game"
+        deptype = "dep"
         game = DBSession.query(GameDepPage).filter_by(
                         gamedeptype_id=gametype.id, deleted=False).all()
         dep = DBSession.query(GameDepPage).filter_by(
@@ -131,8 +131,8 @@ class OutputLib():
                 "architectures": [],
                 "gamedep": []}
         key = None
-        gametype = DBSession.query(GameDepType).filter_by(name="game").one()
-        deptype = DBSession.query(GameDepType).filter_by(name="dep").one()
+        gametype = "game"
+        deptype = "dep"
         game = DBSession.query(GameDepPage).filter_by(
                         gamedeptype_id=gametype.id, deleted=False).all()
         dep = DBSession.query(GameDepPage).filter_by(

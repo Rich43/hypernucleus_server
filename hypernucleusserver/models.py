@@ -1,6 +1,7 @@
 from datetime import datetime
 from pyracms.models import Files, User, Base
-from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, desc
+from sqlalchemy import (Column, Integer, Unicode, DateTime, Boolean, Float, desc, 
+    Enum)
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import ForeignKey, UniqueConstraint
 
@@ -31,26 +32,6 @@ class GameDepTags(Base):
 
     def __init__(self, name):
         self.name = name
-
-class GameDepType(Base):
-    __tablename__ = 'gamedeptype'
-    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
-    id = Column(Integer, primary_key=True)
-    name = Column(Unicode(128), index=True, unique=True, nullable=False)
-
-    def __init__(self, name):
-        self.name = name
-
-class GameDepModuleType(Base):
-    __tablename__ = 'gamedepmoduletype'
-    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
-    id = Column(Integer, primary_key=True)
-    name = Column(Unicode(128), index=True, unique=True, nullable=False)
-    display_name = Column(Unicode(128), index=True, unique=True,
-                                                            nullable=False)
-    def __init__(self, name, display_name):
-        self.name = name
-        self.display_name = display_name
 
 class OperatingSystems(Base):
     __tablename__ = 'operatingsystems'
@@ -150,13 +131,11 @@ class GameDepRevision(Base):
     id = Column(Integer, primary_key=True)
     page_id = Column(Integer, ForeignKey('gamedeppage.id'), nullable=False)
     file_id = Column(Integer, ForeignKey('files.id'), nullable=True)
-    moduletype_id = Column(Integer, ForeignKey('gamedepmoduletype.id'),
-                           nullable=False)
+    moduletype = Column(Enum("file", "folder"), nullable=False)
     page = relationship("GameDepPage")
     version = Column(Float(), default=0.1, index=True, nullable=False)
     created = Column(DateTime, default=datetime.now)
     published = Column(Boolean, default=False, index=True)
-    moduletype = relationship(GameDepModuleType, uselist=False)
     file_obj = relationship(Files, uselist=False)
     binary = relationship(GameDepBinary, cascade="all, delete")
     
@@ -169,9 +148,7 @@ class GameDepPage(Base):
     __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
     
     id = Column(Integer, primary_key=True)
-    gamedeptype_id = Column(Integer, ForeignKey('gamedeptype.id'),
-                            nullable=False)
-    gamedeptype = relationship(GameDepType)
+    gamedeptype = Column(Enum("game", "dep"), nullable=False)
     owner_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     owner = relationship(User)
     name = Column(Unicode(128), index=True, unique=True, nullable=False)
