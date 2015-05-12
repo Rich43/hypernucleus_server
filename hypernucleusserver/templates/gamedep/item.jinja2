@@ -23,16 +23,6 @@
         {% endfor %}
     </p>
     <p>
-        Picture list (<a href="/gamedep/{{ type }}/addpic/{{ page_id }}">Add</a>):
-        {% for pic in dbpage.picture %}
-        <ul>
-            <li>ID: {{ pic.id }}</li>
-            <li>Link: <img src="/outputs/file/{{pic.id}}" alt="{{pic.name}}" /></li>
-            <li><a href="/gamedep/{{ type }}/delpic/{{ page_id }}/{{ pic.id }}">Delete</a></li>
-        </ul>
-        {% endfor %}
-    </p>
-    <p>
     Version list:
     <p><a href="/gamedep/{{ type }}/edit_revision/{{ page_id }}">Add a new version</a></p>
     <ul>
@@ -49,7 +39,7 @@
                 Publish
                 {%- endif %}</a>)
             </li>
-            {% if type == "games" %}
+            {% if type == "game" %}
             <li>Source Code (<a href="/gamedep/{{ type }}/addsrc/{{ page_id }}/{{ rev.id }}">Edit</a>): {{ rev.file_obj.name }}</li>
             {% endif %}
             <li>Binarys (<a href="/gamedep/{{ type }}/addbin/{{ page_id }}/{{ rev.id }}">Add</a>)</li>

@@ -21,7 +21,6 @@ def includeme(config):
     config.add_route('gamedep_delete', '/gamedep/{type}/delete/{page_id}')
     config.add_route('gamedep_add_src', 
                      '/gamedep/{type}/addsrc/{page_id}/{revision}')
-    config.add_route('gamedep_add_pic', '/gamedep/{type}/addpic/{page_id}')
     config.add_route('gamedep_edit_revision', 
                      '/gamedep/{type}/edit_revision/{page_id}')
     config.add_route('gamedep_item', '/gamedep/{type}/item/{page_id}')
@@ -35,8 +34,6 @@ def includeme(config):
                      '/gamedep/{type}/published/{page_id}/{revision}')
     config.add_route('gamedep_del_bin', 
                      '/gamedep/{type}/delbin/{page_id}/{revision}/{binary_id}')
-    config.add_route('gamedep_del_pic', 
-                     '/gamedep/{type}/delpic/{page_id}/{pic_id}')
     config.add_route('gamedep_add_vote', 
                      '/vote/gamedep/{type}/{vote_id}/{like}')
     config.scan('hypernucleusserver.views')

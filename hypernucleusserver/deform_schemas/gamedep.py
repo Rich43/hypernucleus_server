@@ -82,7 +82,7 @@ def deferred_operating_system_widget(node, kw):
 @deferred
 def deferred_operating_system_validator(node, kw):
     g = GameDepLib(kw.get('gamedep_type'))
-    return OneOf(g.list_operatingsystems(False))
+    return OneOf([str(x) for x in g.list_operatingsystems(False)])
 
 @deferred
 def deferred_architecture_widget(node, kw):
@@ -92,7 +92,7 @@ def deferred_architecture_widget(node, kw):
 @deferred
 def deferred_architecture_validator(node, kw):
     g = GameDepLib(kw.get('gamedep_type'))
-    return OneOf(g.list_architectures(False))
+    return OneOf([str(x) for x in g.list_architectures(False)])
 
 @deferred
 def deferred_edit_dependency_one_widget(node, kw):

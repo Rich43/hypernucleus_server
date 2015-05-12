@@ -125,40 +125,6 @@ class GameDepLib():
             rev = GameDepRevision(version, moduletype)
             page.revisions.append(rev)
 
-    def create_picture(self, name, picture, mimetype, filename):
-        """
-        Add a new picture
-        """
-        page = self.show(name)[0]
-        aio = AlchemyIO(fle=picture, sess=DBSession, 
-                        mime=mimetype, filename=filename)
-        picobj = aio.write()
-        page.picture.append(picobj)
-
-    def show_picture(self, page, pic_id):
-        """
-        Find a picture matching pic_id from page.
-        """
-        pic_id = int(pic_id)
-        picitem = None
-        for pagepic in page.picture:
-            if pagepic.id == pic_id:
-                picitem = pagepic
-        if picitem:
-            return picitem
-        else:
-            raise GameDepNotFound
-
-    def delete_picture(self, name, pic_id):
-        """
-        Delete a picture
-        """
-        pic_id = int(pic_id)
-        page = self.show(name)[0]
-        picitem = self.show_picture(page, pic_id)
-        page.picture.remove(picitem)
-        DBSession.delete(picitem)
-
     def create_source(self, name, revision, source, mimetype, filename):
         """
         Add a new source code

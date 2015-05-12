@@ -15,6 +15,7 @@ from pyramid.exceptions import NotFound
 from pyramid.httpexceptions import HTTPNotModified, HTTPFound
 from pyramid.url import route_url, current_route_url
 from pyramid.view import view_config
+from pyracms.models import DBSession
 from string import capwords
 import hashlib
 import pyracms.lib.taglib as taglib
@@ -164,42 +165,6 @@ def gamedep_delete(context, request):
                               % page_id, ERROR)
     return redirect(request, "gamedeplist", page=page_id)
 
-@view_config(route_name='gamedep_add_pic', permission='gamedep_add_picture',
-             renderer='gamedep/edit.jinja2')
-def gamedep_add_picture(context, request):
-    def gamedep_add_picture_submit(context, request, deserialized, 
-                                   bind_params):
-        page_id = get_pageid_revision(request)[0]
-        gamedeptype = request.matchdict.get('type')
-        g = GameDepLib(gamedeptype)
-        picture = deserialized.get("picture")
-        g.create_picture(page_id, picture['fp'], 
-                         picture['mimetype'], picture['filename'])
-        request.session.flash(s.show_setting("INFO_PIC_ADDED")
-                              % picture['filename'], INFO)
-        return redirect(request, "gamedep_item", page_id=page_id, 
-                        type=gamedeptype)
-    return rapid_deform(context, request, AddPictureSchema, 
-                        gamedep_add_picture_submit)
-
-@view_config(route_name='gamedep_del_pic', 
-             permission='gamedep_delete_picture')
-def gamedep_delete_picture(context, request):
-    gamedeptype = request.matchdict.get('type')
-    pic_id = request.matchdict.get('pic_id')
-    g = GameDepLib(gamedeptype)
-    page_id = request.matchdict.get('page_id')
-    try:
-        pic = g.show_picture(g.show(page_id)[0], pic_id)
-        g.delete_picture(page_id, pic_id)
-        request.session.flash(s.show_setting("INFO_PIC_DELETED") 
-                              % pic.name, ERROR)
-    except GameDepNotFound:
-        request.session.flash(s.show_setting("ERROR_NOT_FOUND")
-                              % page_id, ERROR)
-    return redirect(request, "gamedep_item", page_id=page_id, 
-                    type=gamedeptype)
-
 @view_config(route_name='gamedep_add_src', permission='gamedep_add_source',
              renderer='gamedep/edit.jinja2')
 def gamedep_add_source(context, request):
@@ -222,7 +187,7 @@ def gamedep_add_source(context, request):
     moduletype = g.show(page_id, revision)[1].moduletype
     
     # Block people from adding source to a dependency
-    if gamedeptype != "games":
+    if gamedeptype != "game":
         return NotFound(request.url)
     
     # Figure out required files/folders
@@ -314,10 +279,11 @@ def gamedep_delete_binary(context, request):
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     try:
-        bin_name = g.show_binary(binid).name
-        g.delete_binary(page_id, revision, binid)
-        request.session.flash(s.show_setting("INFO_BINARY_DELETED") 
-                              % bin_name, INFO)
+        with DBSession.no_autoflush:
+            bin_name = g.show_binary(binid).file_obj.name
+            g.delete_binary(page_id, revision, binid)
+            request.session.flash(s.show_setting("INFO_BINARY_DELETED") 
+                                  % bin_name, INFO)
     except GameDepNotFound:
         request.session.flash(s.show_setting("ERROR_NOT_FOUND")
                               % page_id, ERROR)
