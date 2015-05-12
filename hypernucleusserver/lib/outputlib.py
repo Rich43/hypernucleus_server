@@ -57,9 +57,9 @@ class OutputLib():
         gametype = "game"
         deptype = "dep"
         game = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype_id=gametype.id, deleted=False).all()
+                        gamedeptype=gametype, deleted=False).all()
         dep = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype_id=deptype.id, deleted=False).all()
+                        gamedeptype=deptype, deleted=False).all()
         oslist = DBSession.query(OperatingSystems)
         archlist = DBSession.query(Architectures)
         for os in oslist:
@@ -134,9 +134,9 @@ class OutputLib():
         gametype = "game"
         deptype = "dep"
         game = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype_id=gametype.id, deleted=False).all()
+                        gamedeptype=gametype, deleted=False).all()
         dep = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype_id=deptype.id, deleted=False).all()
+                        gamedeptype=deptype, deleted=False).all()
         oslist = DBSession.query(OperatingSystems)
         archlist = DBSession.query(Architectures)
         for os in oslist:
