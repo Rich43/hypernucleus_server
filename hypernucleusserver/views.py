@@ -57,7 +57,7 @@ def output_xml(context, request):
     Output serialized xml data
     """
     res = request.response
-    res.article_type = "application/xml"
+    res.content_type = "application/xml"
     res.body = olib.show_xml()
     return res
 
@@ -67,8 +67,8 @@ def output_json(context, request):
     Output serialized json data
     """
     res = request.response
-    res.article_type = "application/json"
-    res.body = olib.show_json()
+    res.content_type = "application/json"
+    res.body = olib.show_json().encode()
     return res
 
 @view_config(route_name='gamedeplist', permission='gamedep_list',
