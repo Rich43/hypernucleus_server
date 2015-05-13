@@ -72,7 +72,7 @@ class OutputLib():
             SubElement(xmlarch, "display_name").text = arch.display_name
         for gamedep in [game, dep]:
             for item in gamedep:
-                if not item.revisions.count():
+                if item.revisions.count() == 0:
                     continue
                 if gamedep == game:
                     xmlgamedep = SubElement(root, "game")
@@ -107,7 +107,7 @@ class OutputLib():
                         SubElement(xmlrev, "created"
                                                 ).text = str(looprev.created)
                         SubElement(xmlrev, "moduletype"
-                                            ).text = looprev.moduletype.name
+                                            ).text = looprev.moduletype
                         if gamedep == game:
                             SubElement(xmlrev, "source"
                                             ).text = self.uploadurl + str(
@@ -155,7 +155,7 @@ class OutputLib():
             else:
                 key = "dependency"
             for item in gamedep:
-                if not item.revisions.count():
+                if item.revisions.count() == 0:
                     continue
                 gamedepdict = {}
                 gamedepdict["name"] = item.name
@@ -187,7 +187,7 @@ class OutputLib():
                         revdict = {}
                         revdict["version"] = str(looprev.version)
                         revdict["created"] = str(looprev.created)
-                        revdict["moduletype"] = looprev.moduletype.name
+                        revdict["moduletype"] = looprev.moduletype
                         if gamedep == game:
                             revdict["source"]= self.uploadurl + str(
                                                         looprev.file_obj.id)
