@@ -1,8 +1,8 @@
-from ..models import (OperatingSystems, Architectures, GameDepBinary, 
+from pyracms.lib.filelib import FileLib
+from ..models import (OperatingSystems, Architectures, GameDepBinary,
     GameDepPage, GameDepRevision, GameDepTags, GameDepDependency, GameDepVotes)
-from pyracms.lib.filelib import AlchemyIO
 from pyracms.lib.taglib import TagLib, GAMEDEP
-from pyracms.models import DBSession
+from pyracms.models import DBSession, Files
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 import transaction
@@ -64,12 +64,13 @@ class GameDepLib():
                 admin)         # To delete page
     """
     
-    def __init__(self, gamedep_type):
+    def __init__(self, gamedep_type, request):
         if not gamedep_type in [GAME, DEP]:
             raise InvalidGameDepType
         self.gamedep_type = gamedep_type
+        self.request = request
         self.t = TagLib(GameDepTags, GAMEDEP)
-        
+
     def list(self): #@ReservedAssignment
         """
         List all the pages
@@ -130,11 +131,10 @@ class GameDepLib():
         Add a new source code
         """
         rev = self.show(name, revision)[1]
-        aio = AlchemyIO(fle=source, sess=DBSession, 
-                        mime=mimetype, filename=filename)
-        srcobj = aio.write()
+        file_lib = FileLib(self.request)
         if rev.file_obj:
-            DBSession.delete(rev.file_obj)
+            file_lib.delete(rev.file_obj)
+        srcobj = file_lib.write(filename, source, mimetype)
         rev.file_obj = srcobj
 
     def show_binary(self, binary_id):
@@ -159,9 +159,8 @@ class GameDepLib():
             raise GameDepNotFound
         
         rev = self.show(name, revision)[1]
-        aio = AlchemyIO(fle=binary, sess=DBSession, 
-                        mime=mimetype, filename=filename)
-        aio_obj = aio.write()
+        file_lib = FileLib(self.request)
+        aio_obj = file_lib.write(filename, binary, mimetype)
         bin_obj = GameDepBinary(aio_obj, os_obj, arch_obj)
         rev.binary.append(bin_obj)
 
@@ -192,11 +191,11 @@ class GameDepLib():
             bin_obj.operatingsystem_obj = os_obj
             bin_obj.architecture_obj = arch_obj
         else:
-            aio = AlchemyIO(fle=binary['fp'], sess=DBSession, 
-                            mime=binary['mimetype'], 
-                            filename=binary['filename'])
-            aio_obj = aio.write()
-            DBSession.delete(bin_obj.file_obj)
+            file_lib = FileLib(self.request)
+            old_name = bin_obj.file_obj.name
+            old_mimetype = bin_obj.file_obj.mimetype
+            aio_obj = file_lib.write(old_name, binary, old_mimetype)
+            file_lib.delete(bin_obj.file_obj)
             bin_obj.file_obj = aio_obj
 
     def delete_binary(self, name, revision, bin_id):

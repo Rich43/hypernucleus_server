@@ -1,53 +1,12 @@
 from ..models import GameDepPage, Architectures, OperatingSystems
-from pyracms.models import Files, DBSession
-from sqlalchemy.orm.exc import NoResultFound
+from pyracms.models import DBSession
 from xml.etree.ElementTree import Element, SubElement, tostring
 import json
-
-class FileNotFound(Exception):
-    pass
-
-class FileIterable(object):
-    def __init__(self, file_id):
-        olib = OutputLib()
-        db_file = olib.show_file(file_id)
-        self.filename = db_file.name
-        self.file_id = file_id
-    def __iter__(self):
-        return FileIterator(self.file_id)
-    
-class FileIterator(object):
-    def __init__(self, file_id):
-        olib = OutputLib()
-        self.fileobj = olib.show_file(file_id)
-        self.filename = self.fileobj.name
-        self.row_id = 0
-    def __iter__(self):
-        return self
-    def next(self):
-        try:
-            chunk = self.fileobj.data[self.row_id]
-        except IndexError:
-            raise StopIteration
-        self.row_id += 1
-        return chunk.data
 
 class OutputLib():
     """
     A library to serialise data from database
     """
-    uploadurl = "http://127.0.0.1:6543/outputs/file/"
-    
-    def show_file(self, file_id):
-        """
-        Get file object from file id.
-        """
-        file_id = int(file_id)
-        try:
-            files = DBSession.query(Files).filter_by(id=file_id).one()
-        except NoResultFound:
-            raise FileNotFound
-        return files
     
     def show_xml(self):
         """
