@@ -1,5 +1,6 @@
 from ..models import GameDepPage, Architectures, OperatingSystems
 from pyracms.models import DBSession
+from pyracms.lib.filelib import FileLib
 from xml.etree.ElementTree import Element, SubElement, tostring
 import json
 
@@ -7,7 +8,9 @@ class OutputLib():
     """
     A library to serialise data from database
     """
-    
+    def __init__(self, request):
+        self.uploadurl = '%s/static/%s/' % (request.host_url, FileLib(request).UPLOAD_DIR)
+
     def show_xml(self):
         """
         Serialize gamedep into xml
@@ -42,9 +45,6 @@ class OutputLib():
                                                 ).text = item.display_name
                 SubElement(xmlgamedep, "description").text = item.description
                 SubElement(xmlgamedep, "created").text = str(item.created)
-                for looppic in item.picture:
-                    SubElement(xmlgamedep, "picture"
-                                    ).text = self.uploadurl + str(looppic.id)
                 for loopdep in item.dependencies:
                     xmldep = SubElement(xmlgamedep, "dependency")
                     if loopdep.page_obj.revisions.count() == 0:
@@ -69,13 +69,15 @@ class OutputLib():
                                             ).text = looprev.moduletype
                         if gamedep == game:
                             SubElement(xmlrev, "source"
-                                            ).text = self.uploadurl + str(
-                                                        looprev.file_obj.id)
+                                       ).text = self.uploadurl + \
+                                                looprev.file_obj.uuid \
+                                                + "/" + looprev.file_obj.name
                         for loopbin in looprev.binary:
                             xmlbin = SubElement(xmlrev, "binary")
                             SubElement(xmlbin, "binary"
-                                            ).text = self.uploadurl + str(
-                                                        loopbin.file_obj.id)
+                                       ).text = self.uploadurl + \
+                                                loopbin.file_obj.uuid \
+                                                + "/" + loopbin.file_obj.name
                             SubElement(xmlbin, "operating_system"
                                     ).text = loopbin.operatingsystem_obj.name
                             SubElement(xmlbin, "architecture"
@@ -121,10 +123,6 @@ class OutputLib():
                 gamedepdict["display_name"] = item.display_name
                 gamedepdict["description"] = item.description
                 gamedepdict["created"] = str(item.created)
-                gamedepdict["pictures"] = []
-                for looppic in item.picture:
-                    gamedepdict["pictures"].append(
-                                        self.uploadurl + str(looppic.id))
                 gamedepdict["dependencies"] = []
                 for loopdep in item.dependencies:
                     depdict = {}
@@ -148,13 +146,15 @@ class OutputLib():
                         revdict["created"] = str(looprev.created)
                         revdict["moduletype"] = looprev.moduletype
                         if gamedep == game:
-                            revdict["source"]= self.uploadurl + str(
-                                                        looprev.file_obj.id)
+                            revdict["source"]=  self.uploadurl + \
+                                                looprev.file_obj.uuid \
+                                                + "/" + looprev.file_obj.name
                         revdict["binaries"] = []
                         for loopbin in looprev.binary:
                             bindict = {}
-                            bindict["binary"] = self.uploadurl + str(
-                                                        loopbin.file_obj.id)
+                            bindict["binary"] = self.uploadurl + \
+                                                loopbin.file_obj.uuid \
+                                                + "/" + loopbin.file_obj.name
                             bindict["operating_system"] = \
                                             loopbin.operatingsystem_obj.name
                             bindict["architecture"] = \

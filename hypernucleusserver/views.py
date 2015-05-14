@@ -17,11 +17,8 @@ from pyramid.url import route_url, current_route_url
 from pyramid.view import view_config
 from pyracms.models import DBSession
 from string import capwords
-import hashlib
 import pyracms.lib.taglib as taglib
-import transaction
 
-olib = OutputLib()
 u = UserLib()
 s = SettingsLib()
 
@@ -33,29 +30,12 @@ def get_pageid_revision(request):
     revision = request.matchdict.get('revision')
     return (page_id, revision)
 
-@view_config(route_name='outputs_file', http_cache=3600)
-def output_file(context, request):
-    """
-    Send an uploaded file to the user.
-    """
-    file_id = request.matchdict.get('fileid')
-    file_obj = olib.show_file(file_id)
-    res = request.response
-    res.etag = hashlib.md5(bytes(file_obj.id)).hexdigest()
-    if res.etag in request.if_none_match:
-        return HTTPNotModified()
-    res.article_type = file_obj.mimetype
-    res.app_iter = FileIterable(file_id)
-    res.article_length = file_obj.size
-    file_obj.download_count += 1
-    transaction.commit()
-    return res
-
 @view_config(route_name='outputs_xml')
 def output_xml(context, request):
     """
     Output serialized xml data
     """
+    olib = OutputLib(request)
     res = request.response
     res.content_type = "application/xml"
     res.body = olib.show_xml()
@@ -66,6 +46,7 @@ def output_json(context, request):
     """
     Output serialized json data
     """
+    olib = OutputLib(request)
     res = request.response
     res.content_type = "application/json"
     res.body = olib.show_json().encode()
