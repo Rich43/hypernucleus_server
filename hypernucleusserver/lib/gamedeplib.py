@@ -110,7 +110,7 @@ class GameDepLib():
         if rev.published == False:
             if self.gamedep_type == GAME and not rev.file_obj:
                 raise SourceCodeNotFound
-            if self.gamedep_type == DEP and not rev.binary.count():
+            if self.gamedep_type == DEP and not len(rev.binary):
                 raise BinaryNotFound
         rev.published = not(rev.published)
         
@@ -345,7 +345,7 @@ class GameDepLib():
         page = DBSession.query(GameDepPage).filter_by(deleted=False, 
                                                       gamedeptype="dep")
         for x in page:
-            if x.revisions.count():
+            if len(x.revisions):
                 i = 0
                 for revision in x.revisions:
                     if revision.published:
@@ -393,7 +393,7 @@ class GameDepLib():
                                                 deleted=False).one()
             except NoResultFound:
                 raise GameDepNotFound("NoResultFound")
-            if not page.revisions.count() and no_revision_error:
+            if not len(page.revisions) and no_revision_error:
                 raise GameDepNotFound("no_revision_error")
             return (page, page.revisions)
         else:
