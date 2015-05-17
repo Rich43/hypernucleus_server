@@ -345,7 +345,7 @@ class GameDepLib():
         page = DBSession.query(GameDepPage).filter_by(deleted=False, 
                                                       gamedeptype="dep")
         for x in page:
-            if len(x.revisions):
+            if x.revisions.count():
                 i = 0
                 for revision in x.revisions:
                     if revision.published:
@@ -393,7 +393,7 @@ class GameDepLib():
                                                 deleted=False).one()
             except NoResultFound:
                 raise GameDepNotFound("NoResultFound")
-            if not len(page.revisions) and no_revision_error:
+            if not page.revisions.count() and no_revision_error:
                 raise GameDepNotFound("no_revision_error")
             return (page, page.revisions)
         else:
