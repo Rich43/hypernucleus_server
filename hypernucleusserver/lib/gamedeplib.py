@@ -64,11 +64,10 @@ class GameDepLib():
                 admin)         # To delete page
     """
     
-    def __init__(self, gamedep_type, request):
+    def __init__(self, gamedep_type):
         if not gamedep_type in [GAME, DEP]:
             raise InvalidGameDepType
         self.gamedep_type = gamedep_type
-        self.request = request
         self.t = TagLib(GameDepTags, GAMEDEP)
 
     def list(self): #@ReservedAssignment
@@ -126,12 +125,13 @@ class GameDepLib():
             rev = GameDepRevision(version, moduletype)
             page.revisions.append(rev)
 
-    def create_source(self, name, revision, source, mimetype, filename):
+    def create_source(self, name, revision, source, mimetype, 
+                      filename, request):
         """
         Add a new source code
         """
         rev = self.show(name, revision)[1]
-        file_lib = FileLib(self.request)
+        file_lib = FileLib(request)
         if rev.file_obj:
             file_lib.delete(rev.file_obj)
         srcobj = file_lib.write(filename, source, mimetype)
@@ -146,7 +146,7 @@ class GameDepLib():
         return bin_obj
     
     def create_binary(self, name, revision, operatingsystem, architecture, 
-                      binary, mimetype, filename):
+                      binary, mimetype, filename, request):
         """
         Add a new binary
         """
@@ -159,13 +159,13 @@ class GameDepLib():
             raise GameDepNotFound
         
         rev = self.show(name, revision)[1]
-        file_lib = FileLib(self.request)
+        file_lib = FileLib(request)
         aio_obj = file_lib.write(filename, binary, mimetype)
         bin_obj = GameDepBinary(aio_obj, os_obj, arch_obj)
         rev.binary.append(bin_obj)
 
     def update_binary(self, name, revision, binary_id, operatingsystem, 
-                      architecture, binary):
+                      architecture, binary, request):
         """
         Update a binary
         """
@@ -191,7 +191,7 @@ class GameDepLib():
             bin_obj.operatingsystem_obj = os_obj
             bin_obj.architecture_obj = arch_obj
         else:
-            file_lib = FileLib(self.request)
+            file_lib = FileLib(request)
             old_name = bin_obj.file_obj.name
             old_mimetype = bin_obj.file_obj.mimetype
             aio_obj = file_lib.write(old_name, binary, old_mimetype)

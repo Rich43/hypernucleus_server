@@ -56,7 +56,7 @@ def output_json(context, request):
              renderer='gamedep/list.jinja2')      
 def gamedep_list(context, request):
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     gamedeptypetwo = {GAME: "game",
                       DEP: "dependenc"}.get(gamedeptype)
     return {'pages': g.list(), 'type': gamedeptype, 
@@ -66,7 +66,7 @@ def gamedep_list(context, request):
 @view_config(route_name='gamedep_published', permission='gamedep_publish')
 def gamedep_published(context, request):
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     g.flip_published(page_id, revision)
@@ -78,7 +78,7 @@ def gamedep_published(context, request):
              permission='gamedep_view')
 def gamedep_item(context, request):
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     try:
@@ -97,7 +97,7 @@ def gamedep_edit(context, request):
     def gamedep_edit_submit(context, request, deserialized, bind_params):
         page_id = get_pageid_revision(request)[0]
         gamedeptype = request.matchdict.get('type')
-        g = GameDepLib(gamedeptype, request)
+        g = GameDepLib(gamedeptype)
         name = deserialized.get("name")
         display_name = deserialized.get("display_name")
         description = deserialized.get("description")
@@ -114,7 +114,7 @@ def gamedep_edit(context, request):
         return redirect(request, "gamedep_item", page_id=name, 
                         type=gamedeptype)
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     t = taglib.TagLib(GameDepTags, taglib.GAMEDEP)
     try:
@@ -137,7 +137,7 @@ def gamedep_edit(context, request):
 def gamedep_delete(context, request):
     page_id = request.matchdict.get('page_id')
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     if g.exists(page_id):
         g.delete(page_id)
         request.session.flash(s.show_setting("INFO_DELETED"), INFO)
@@ -153,16 +153,17 @@ def gamedep_add_source(context, request):
                                   bind_params):
         page_id, revision = get_pageid_revision(request)
         gamedeptype = request.matchdict.get('type')
-        g = GameDepLib(gamedeptype, request)
+        g = GameDepLib(gamedeptype)
         source = deserialized.get("source")
         g.create_source(page_id, revision, source['fp'], 
-                         source['mimetype'], source['filename'])
+                        source['mimetype'], source['filename'], 
+                        request)
         request.session.flash(s.show_setting("INFO_SOURCE_UPLOADED") 
                               % source['filename'], INFO)
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     moduletype = g.show(page_id, revision)[1].moduletype
@@ -190,7 +191,7 @@ def gamedep_add_source(context, request):
              permission='gamedep_edit_binary')
 def gamedep_add_binary(context, request):
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     binary_id = request.matchdict.get('binary_id')
     revision = request.matchdict.get('revision')
@@ -237,12 +238,12 @@ def gamedep_add_binary(context, request):
         if not binary_id and not edittype:
             g.create_binary(page_id, revision, operatingsystem, architecture, 
                             binary['fp'], binary['mimetype'], 
-                            binary['filename'])
+                            binary['filename'], request)
             request.session.flash(s.show_setting("INFO_BINARY_ADDED")
                                   % binary['filename'], INFO)
         else:
             g.update_binary(page_id, revision, binary_id, operatingsystem, 
-                            architecture, binary)
+                            architecture, binary, request)
             request.session.flash(s.show_setting("INFO_BINARY_UPDATED")
                                   % binary['filename'], INFO)
         return redirect(request, "gamedep_item", page_id=page_id, 
@@ -256,7 +257,7 @@ def gamedep_add_binary(context, request):
 def gamedep_delete_binary(context, request):
     gamedeptype = request.matchdict.get('type')
     binid = request.matchdict.get('binary_id')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     try:
@@ -281,7 +282,7 @@ def gamedep_add_dependency(context, request):
     def gamedep_add_dependency_submit(context, request, deserialized, 
                                       bind_params):
         gamedeptype = request.matchdict.get('type')
-        g = GameDepLib(gamedeptype, request)
+        g = GameDepLib(gamedeptype)
         page_id = request.matchdict.get('page_id')
         dep_id = request.matchdict.get('depid')
         form_dep_id = deserialized.get("dependency")
@@ -316,7 +317,7 @@ def gamedep_add_dependency(context, request):
 def gamedep_delete_dependency(context, request):
     gamedeptype = request.matchdict.get('type')
     depid = request.matchdict.get('depid')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     try:
         dep_name = g.show_dependency(g.show(page_id)[0], 
@@ -341,7 +342,7 @@ def gamedep_edit_revision(context, request):
                                      bind_params):
         page_id, revision = get_pageid_revision(request)
         gamedeptype = request.matchdict.get('type')
-        g = GameDepLib(gamedeptype, request)
+        g = GameDepLib(gamedeptype)
         frmversion = deserialized.get("version")
         frmmodule_type = deserialized.get("moduletype")
         try:
@@ -355,7 +356,7 @@ def gamedep_edit_revision(context, request):
         return redirect(request, "gamedep_item", page_id=page_id, 
                         type=gamedeptype)
     gamedeptype = request.matchdict.get('type')
-    g = GameDepLib(gamedeptype, request)
+    g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     try:
@@ -379,7 +380,7 @@ def gamedep_add_vote(context, request):
     vote_id = request.matchdict.get('vote_id')
     like = request.matchdict.get('like').lower() == "true"
     gamedeptype = request.matchdict.get('type')
-    gd_lib = GameDepLib(gamedeptype, request)
+    gd_lib = GameDepLib(gamedeptype)
     gd = gd_lib.show(vote_id, no_revision_error=False)[0]
     try:
         gd_lib.add_vote(gd, u.show(get_username(request)), like)

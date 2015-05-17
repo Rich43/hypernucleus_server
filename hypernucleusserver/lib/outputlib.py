@@ -1,7 +1,7 @@
 from ..models import GameDepPage, Architectures, OperatingSystems
 from pyracms.models import DBSession
 from pyracms.lib.filelib import FileLib
-from xml.etree.ElementTree import Element, SubElement, tostring
+from .dicttoxml import dicttoxml
 import json
 
 class OutputLib():
@@ -15,74 +15,7 @@ class OutputLib():
         """
         Serialize gamedep into xml
         """
-        root = Element("hypernucleus")
-        gametype = "game"
-        deptype = "dep"
-        game = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype=gametype, deleted=False).all()
-        dep = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype=deptype, deleted=False).all()
-        oslist = DBSession.query(OperatingSystems)
-        archlist = DBSession.query(Architectures)
-        for os in oslist:
-            xmlos = SubElement(root, "operatingsystem")
-            SubElement(xmlos, "name").text = os.name
-            SubElement(xmlos, "display_name").text = os.display_name
-        for arch in archlist:
-            xmlarch = SubElement(root, "architecture")
-            SubElement(xmlarch, "name").text = arch.name
-            SubElement(xmlarch, "display_name").text = arch.display_name
-        for gamedep in [game, dep]:
-            for item in gamedep:
-                if item.revisions.count() == 0:
-                    continue
-                if gamedep == game:
-                    xmlgamedep = SubElement(root, "game")
-                else:
-                    xmlgamedep = SubElement(root, "dependency")
-                SubElement(xmlgamedep, "name").text = item.name
-                SubElement(xmlgamedep, "display_name"
-                                                ).text = item.display_name
-                SubElement(xmlgamedep, "description").text = item.description
-                SubElement(xmlgamedep, "created").text = str(item.created)
-                for loopdep in item.dependencies:
-                    xmldep = SubElement(xmlgamedep, "dependency")
-                    if loopdep.page_obj.revisions.count() == 0:
-                        continue
-                    SubElement(xmldep, "name").text = loopdep.page_obj.name
-                    if loopdep.rev_obj:
-                        SubElement(xmldep, "version").text = \
-                                    str(loopdep.rev_obj.version)
-                    else:
-                        SubElement(xmldep, "version").text = \
-                                    str(loopdep.page_obj.revisions[0].version)
-                for looptag in item.tags:
-                    SubElement(xmlgamedep, "tag").text = looptag.name
-                for looprev in item.revisions:
-                    if looprev.published:
-                        xmlrev = SubElement(xmlgamedep, "revision")
-                        SubElement(xmlrev, "version"
-                                                ).text = str(looprev.version)
-                        SubElement(xmlrev, "created"
-                                                ).text = str(looprev.created)
-                        SubElement(xmlrev, "moduletype"
-                                            ).text = looprev.moduletype
-                        if gamedep == game:
-                            SubElement(xmlrev, "source"
-                                       ).text = self.uploadurl + \
-                                                looprev.file_obj.uuid \
-                                                + "/" + looprev.file_obj.name
-                        for loopbin in looprev.binary:
-                            xmlbin = SubElement(xmlrev, "binary")
-                            SubElement(xmlbin, "binary"
-                                       ).text = self.uploadurl + \
-                                                loopbin.file_obj.uuid \
-                                                + "/" + loopbin.file_obj.name
-                            SubElement(xmlbin, "operating_system"
-                                    ).text = loopbin.operatingsystem_obj.name
-                            SubElement(xmlbin, "architecture"
-                                    ).text = loopbin.architecture_obj.name
-        return tostring(root)
+        return dicttoxml(json.loads(self.show_json()), custom_root="hypernucleus", attr_type=False)
     
     def show_json(self):
         """
