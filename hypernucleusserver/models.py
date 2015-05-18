@@ -56,15 +56,6 @@ class Architectures(Base):
     def __init__(self, name, display_name):
         self.name = name
         self.display_name = display_name
-
-class GameDepPicture(Base):
-    __tablename__ = 'gamedeppicture'
-    __table_args__ = (UniqueConstraint('game_id', 'file_id'),
-                        {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
-    
-    id = Column(Integer, primary_key=True)
-    game_id = Column(Integer, ForeignKey('gamedeppage.id'), nullable=False)
-    file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
     
 class GameDepBinary(Base):
     __tablename__ = 'gamedepbinary'
@@ -87,43 +78,7 @@ class GameDepBinary(Base):
         self.file_obj = file_obj
         self.operatingsystem_obj = operatingsystem_obj
         self.architecture_obj = architecture_obj
-
-class GameDepDependencyOne(Base):
-    __tablename__ = 'gamedepdependencyone'
-    __table_args__ = (UniqueConstraint('dep_id', 'page_id'),
-                        {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
-    
-    id = Column(Integer, primary_key=True)
-    dep_id = Column(Integer, ForeignKey('gamedepdependency.id'),
-                    nullable=False)
-    page_id = Column(Integer, ForeignKey('gamedeppage.id'), nullable=False)
-    
-class GameDepDependencyTwo(Base):
-    __tablename__ = 'gamedepdependencytwo'
-    __table_args__ = (UniqueConstraint('dep_id', 'rev_id'),
-                        {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
-    
-    id = Column(Integer, primary_key=True)
-    dep_id = Column(Integer, ForeignKey('gamedepdependency.id'),
-                    nullable=False)
-    rev_id = Column(Integer, ForeignKey('gamedeprevision.id'), nullable=True)
-
-class GameDepDependency(Base):
-    __tablename__ = 'gamedepdependency'
-    __table_args__ = ({'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
-    
-    id = Column(Integer, primary_key=True)
-    game_id = Column(Integer, ForeignKey('gamedeppage.id'), nullable=False)
-    page_obj = relationship("GameDepPage",
-                            secondary=GameDepDependencyOne.__table__,
-                            uselist=False)
-    rev_obj = relationship("GameDepRevision",
-                            secondary=GameDepDependencyTwo.__table__,
-                            uselist=False)
-
-    def __init__(self, page_obj):
-        self.page_obj = page_obj
-
+        
 class GameDepRevision(Base):
     __tablename__ = 'gamedeprevision'
     __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
@@ -143,6 +98,22 @@ class GameDepRevision(Base):
         self.version = version
         self.moduletype = moduletype
 
+class GameDepDependency(Base):
+    __tablename__ = 'gamedepdependency'
+    __table_args__ = ({'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
+    
+    id = Column(Integer, primary_key=True)
+    game_id = Column(Integer, ForeignKey('gamedeppage.id'), 
+                     nullable=False)
+    rev_id = Column(Integer, ForeignKey('gamedeprevision.id'), 
+                    nullable=False)
+    page_obj = relationship("GameDepPage", uselist=False)
+    rev_obj = relationship(GameDepRevision, uselist=False)
+    
+    def __init__(self, page_obj, rev_obj):
+        self.page_obj = page_obj
+        self.rev_obj = rev_obj
+
 class GameDepPage(Base):
     __tablename__ = 'gamedeppage'
     __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
@@ -156,15 +127,19 @@ class GameDepPage(Base):
     description = Column(Unicode(16384), default="")
     created = Column(DateTime, default=datetime.now)
     deleted = Column(Boolean, default=False, index=True)
+    album_id = Column(Integer, default=-1)
     revisions = relationship(GameDepRevision,
                              cascade="all, delete, delete-orphan",
                              lazy="dynamic",
-                             order_by=desc(GameDepRevision.id),
+                             order_by=desc(GameDepRevision.version),
                              single_parent=True)
-    tags = relationship(GameDepTags, cascade="all, delete, delete-orphan")
-    dependencies = relationship(GameDepDependency, cascade="all, delete")
-    picture = relationship(Files, secondary=GameDepPicture.__table__,
-                           cascade="all, delete")
+    tags = relationship(GameDepTags, 
+                        cascade="all, delete, delete-orphan")
+    dependencies = relationship(GameDepRevision, 
+                                secondary=GameDepDependency.__table__, 
+                                order_by=desc(GameDepRevision.version),
+                                cascade="all, delete, delete-orphan",
+                                single_parent=True)
     votes = relationship(GameDepVotes, lazy="dynamic",
                          cascade="all, delete, delete-orphan")
     
@@ -173,4 +148,3 @@ class GameDepPage(Base):
         self.display_name = display_name
         self.gamedeptype = gamedeptype
         self.owner = owner
-

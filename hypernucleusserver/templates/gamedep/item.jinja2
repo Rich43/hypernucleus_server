@@ -15,10 +15,10 @@
         Dependency list (<a href="/gamedep/{{ type }}/adddep/{{ page_id }}">Add</a>):
         {% for dep in dbpage.dependencies %}
         <ul>
-            <li>ID: {{ dep.page_obj.id }}</li>
-            <li>Name: {{ dep.page_obj.name }}</li>
-            <li>Version: {{ dep.rev_obj.version }}</li>
-            <li><a href="/gamedep/{{ type }}/deldep/{{ page_id }}/{{ dep.page_obj.id }}">Delete</a></li>
+            <li>ID: {{ dep.id }}</li>
+            <li>Name: {{ dep.page.name }}</li>
+            <li>Version: {{ dep.version }}</li>
+            <li><a href="/gamedep/{{ type }}/deldep/{{ page_id }}/{{ dep.id }}">Delete</a></li>
         </ul>
         {% endfor %}
     </p>

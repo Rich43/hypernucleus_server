@@ -215,7 +215,7 @@ class GameDepLib():
         else:
             raise GameDepNotFound
 
-    def create_dependency(self, name, dep_id, rev_id=None):
+    def create_dependency(self, name, dep_id, rev_id):
         """
         Add a new dependency
         """
@@ -224,23 +224,18 @@ class GameDepLib():
             dep = DBSession.query(GameDepPage).filter_by(gamedeptype="dep", 
                                                          deleted=False, 
                                                          id=dep_id).one()
-            if rev_id:
-                rev = DBSession.query(GameDepRevision).filter_by(
-                                            id=rev_id).one()
-                if not rev in dep.revisions:
-                    raise GameDepNotFound
+            rev = DBSession.query(GameDepRevision).filter_by(
+                                        id=rev_id).one()
+            if not rev in dep.revisions:
+                raise GameDepNotFound
         except NoResultFound:
             raise GameDepNotFound
         
         page = self.show(name)[0]
         for pagedep in page.dependencies:
-            if pagedep.page_obj.id == dep.id:
+            if pagedep.page.id == dep.id:
                 raise GameDepFound
-        
-        gdd = GameDepDependency(dep)
-        if rev_id:
-            gdd.rev_obj = rev
-        page.dependencies.append(gdd)
+        page.dependencies.append(rev)
 
     def show_dependency(self, page, dep_id):
         """
@@ -249,7 +244,7 @@ class GameDepLib():
         dep_id = int(dep_id)
         found = False
         for item in page.dependencies:
-            if dep_id == item.page_obj.id:
+            if dep_id == item.page.id:
                 return item
         if not found:
             raise GameDepNotFound
@@ -352,14 +347,15 @@ class GameDepLib():
                         i += 1
                 if i > 0:
                     if with_display_name:
-                        result.append((x.id, "%s (%s)" % (x.display_name, 
-                                                          x.name)))
+                        result.append((str(x.id), 
+                                       "%s (%s)" % (x.display_name, 
+                                                    x.name)))
                     else:
-                        result.append(x.id)
+                        result.append(str(x.id))
         return result
     
     def revision_dropdown(self, dep_id, with_display_name=True):
-        initial_item = [(-1, "Use Latest Version")]
+        initial_item = [("-1", "Use Latest Version")]
         if with_display_name:
             rev = DBSession.query(GameDepRevision.id, 
                                    GameDepRevision.version).filter_by(
@@ -370,9 +366,9 @@ class GameDepLib():
         result = initial_item 
         result.extend(rev.all())
         if with_display_name:
-            result = [(x[0], x[1]) for x in result]
+            result = [(str(x[0]), str(x[1])) for x in result]
         else:
-            result = [x[0] for x in result]
+            result = [str(x[0]) for x in result]
         return result
     
     def show(self, name, revision=None, no_revision_error=True):

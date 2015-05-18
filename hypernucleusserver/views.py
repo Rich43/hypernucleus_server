@@ -285,8 +285,8 @@ def gamedep_add_dependency(context, request):
         g = GameDepLib(gamedeptype)
         page_id = request.matchdict.get('page_id')
         dep_id = request.matchdict.get('depid')
-        form_dep_id = deserialized.get("dependency")
         form_rev_id = deserialized.get("revision")
+        form_dep_id = deserialized.get("dependency")
         if not form_rev_id:
             return HTTPFound(location=current_route_url(request) 
                              + "/%s" % form_dep_id)
@@ -296,7 +296,7 @@ def gamedep_add_dependency(context, request):
             else:
                 g.create_dependency(page_id, dep_id, form_rev_id)
             dep_name = g.show_dependency(g.show(page_id)[0], 
-                                         form_dep_id).page_obj.name
+                                         dep_id).page.name
             request.session.flash(s.show_setting("INFO_DEPENDENCY_ADDED") 
                                   % dep_name, INFO)
             return redirect(request, "gamedep_item", page_id=page_id, 
@@ -345,11 +345,11 @@ def gamedep_edit_revision(context, request):
         g = GameDepLib(gamedeptype)
         frmversion = deserialized.get("version")
         frmmodule_type = deserialized.get("moduletype")
-        try:
+        if bind_params['update']:
             g.update_revision(page_id, revision, frmversion, frmmodule_type)
             request.session.flash(s.show_setting("INFO_REVISION_UPDATED") 
                                   % (frmversion, page_id), INFO)
-        except GameDepNotFound:
+        else:
             g.create_revision(page_id, frmversion, frmmodule_type)
             request.session.flash(s.show_setting("INFO_REVISION_CREATED") 
                                   % (frmversion, page_id), INFO)
@@ -359,18 +359,20 @@ def gamedep_edit_revision(context, request):
     g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
-    try:
+    update = False
+    if revision:
+        update = True
         dbrevision = g.show(page_id, revision)[1]
-        dbversion = dbrevision.version
+        dbversion = dbrevision[0].version
         dbmoduletype_name = dbrevision[0].moduletype
-    except GameDepNotFound:
+    else:
         dbrevision = None
         dbversion = 0.1
         dbmoduletype_name = "file"
     return rapid_deform(context, request, EditRevisionSchema, 
                         gamedep_edit_revision_submit, 
                         version=dbversion, moduletype=dbmoduletype_name, 
-                        gamedep_type=gamedeptype)
+                        gamedep_type=gamedeptype, update=update)
 
 @view_config(route_name='gamedep_add_vote', permission='vote')
 def gamedep_add_vote(context, request):
