@@ -26,6 +26,8 @@ def includeme(config):
     config.add_route('gamedep_item', '/gamedep/{type}/item/{page_id}')
     config.add_route('gamedep_edit_revision2', 
                      '/gamedep/{type}/edit_revision/{page_id}/{revision}')
+    config.add_route('gamedep_delete_revision', 
+                     '/gamedep/{type}/delete_revision/{page_id}/{revision}')
     config.add_route('gamedep_add_deptwo', 
                      '/gamedep/{type}/adddep/{page_id}/{depid}')
     config.add_route('gamedeplist', '/gamedep/{type}/list')

@@ -139,12 +139,12 @@ def gamedep_delete(context, request):
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
     if g.exists(page_id):
-        g.delete(page_id)
+        g.delete(page_id, request)
         request.session.flash(s.show_setting("INFO_DELETED"), INFO)
     else:
         request.session.flash(s.show_setting("ERROR_NOT_FOUND") 
                               % page_id, ERROR)
-    return redirect(request, "gamedeplist", page=page_id)
+    return redirect(request, "gamedeplist", type=gamedeptype)
 
 @view_config(route_name='gamedep_add_src', permission='gamedep_add_source',
              renderer='gamedep/edit.jinja2')
@@ -373,6 +373,28 @@ def gamedep_edit_revision(context, request):
                         gamedep_edit_revision_submit, 
                         version=dbversion, moduletype=dbmoduletype_name, 
                         gamedep_type=gamedeptype, update=update)
+
+@view_config(route_name='gamedep_delete_revision', 
+             permission='gamedep_delete')
+def gamedep_delete_revision(context, request):
+    page_id = request.matchdict.get('page_id')
+    revision = request.matchdict.get('revision')
+    gamedeptype = request.matchdict.get('type')
+    g = GameDepLib(gamedeptype)
+    if g.exists(page_id):
+        caption = "Version %s" % g.show(page_id, revision)[1].version
+        try:
+            g.delete_revision(page_id, revision, request)
+            request.session.flash(s.show_setting("INFO_DELETED")
+                                  % caption, INFO)
+        except GameDepNotFound:
+            request.session.flash(s.show_setting("ERROR_NOT_FOUND") 
+                                  % page_id, ERROR)
+    else:
+        request.session.flash(s.show_setting("ERROR_NOT_FOUND") 
+                              % page_id, ERROR)
+    return redirect(request, "gamedep_item", page_id=page_id, 
+                            type=gamedeptype)
 
 @view_config(route_name='gamedep_add_vote', permission='vote')
 def gamedep_add_vote(context, request):

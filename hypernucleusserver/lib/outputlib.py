@@ -9,13 +9,15 @@ class OutputLib():
     A library to serialise data from database
     """
     def __init__(self, request):
-        self.uploadurl = '%s/static/%s/' % (request.host_url, FileLib(request).UPLOAD_DIR)
+        self.uploadurl = '%s/static/%s/' % (request.host_url, 
+                                            FileLib(request).UPLOAD_DIR)
 
     def show_xml(self):
         """
         Serialize gamedep into xml
         """
-        return dicttoxml(json.loads(self.show_json()), custom_root="hypernucleus", attr_type=False)
+        return dicttoxml(json.loads(self.show_json()), 
+                         custom_root="hypernucleus", attr_type=False)
     
     def show_json(self):
         """
@@ -59,14 +61,14 @@ class OutputLib():
                 gamedepdict["dependencies"] = []
                 for loopdep in item.dependencies:
                     depdict = {}
-                    if loopdep.page_obj.revisions.count() == 0:
+                    if loopdep.page.revisions.count() == 0:
                         continue
-                    depdict['dependency'] = loopdep.page_obj.name
-                    if loopdep.rev_obj:
-                        depdict['version'] = str(loopdep.rev_obj.version)
+                    depdict['dependency'] = loopdep.page.name
+                    if loopdep:
+                        depdict['version'] = str(loopdep.version)
                     else:
-                        depdict['version'] = str(loopdep.page_obj.\
-                                                        revisions[0].version)
+                        depdict['version'] = str(loopdep.page.\
+                                                 revisions[0].version)
                     gamedepdict["dependencies"].append(depdict)
                 gamedepdict["tags"] = []
                 for looptag in item.tags:

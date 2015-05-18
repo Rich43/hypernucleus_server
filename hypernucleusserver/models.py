@@ -68,7 +68,7 @@ class GameDepBinary(Base):
                                 nullable=False)
     architecture_id = Column(Integer, ForeignKey('architectures.id'),
                              nullable=False)
-    file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
+    file_id = Column(Integer, ForeignKey('files.id'), nullable=True)
     file_obj = relationship(Files, uselist=False, single_parent=True,
                             cascade="all, delete, delete-orphan")
     operatingsystem_obj = relationship(OperatingSystems, uselist=False)
@@ -126,7 +126,6 @@ class GameDepPage(Base):
     display_name = Column(Unicode(128), index=True, nullable=False)
     description = Column(Unicode(16384), default="")
     created = Column(DateTime, default=datetime.now)
-    deleted = Column(Boolean, default=False, index=True)
     album_id = Column(Integer, default=-1)
     revisions = relationship(GameDepRevision,
                              cascade="all, delete, delete-orphan",

@@ -76,7 +76,7 @@ class GameDepLib():
         """
         result = set()
         gamedeps = DBSession.query(GameDepPage).filter_by(
-                                gamedeptype=self.gamedep_type, deleted=False)
+                                gamedeptype=self.gamedep_type)
         if not gamedeps:
             raise GameDepNotFound
         for gamedep in gamedeps:
@@ -113,17 +113,6 @@ class GameDepLib():
             if self.gamedep_type == DEP and not len(rev.binary):
                 raise BinaryNotFound
         rev.published = not(rev.published)
-        
-    def create_revision(self, name, version, moduletype):
-        """
-        Add a new revision
-        Raise GameDepFound if version exists
-        """
-        version = float(version)
-        if not self.exists(name, version, raise_if_found=True):
-            page, rev = self.show(name, no_revision_error=False)
-            rev = GameDepRevision(version, moduletype)
-            page.revisions.append(rev)
 
     def create_source(self, name, revision, source, mimetype, 
                       filename, request):
@@ -222,7 +211,6 @@ class GameDepLib():
         dep_id = int(dep_id)
         try:
             dep = DBSession.query(GameDepPage).filter_by(gamedeptype="dep", 
-                                                         deleted=False, 
                                                          id=dep_id).one()
             rev = DBSession.query(GameDepRevision).filter_by(
                                         id=rev_id).one()
@@ -258,7 +246,18 @@ class GameDepLib():
         item = self.show_dependency(page, dep_id)
         page.dependencies.remove(item)
         DBSession.delete(item)
-
+        
+    def create_revision(self, name, version, moduletype):
+        """
+        Add a new revision
+        Raise GameDepFound if version exists
+        """
+        version = float(version)
+        if not self.exists(name, version, raise_if_found=True):
+            page, rev = self.show(name, no_revision_error=False)
+            rev = GameDepRevision(version, moduletype)
+            page.revisions.append(rev)
+            
     def update_revision(self, name, revision, version, moduletype):
         """
         Update a revision
@@ -268,14 +267,35 @@ class GameDepLib():
         rev = self.show(name, revision)[1]
         rev.version = version
         rev.moduletype = moduletype
-
-    def delete(self, name):
+    
+    def delete_revision(self, name, revision, request):
+        """
+        Delete a revision
+        Raise GameDepNotFound if page does not exist
+        """
+        f = FileLib(request)
+        rev = self.show(name, revision)[1]
+        files = set()
+        if rev.file_obj:
+            files.add(rev.file_obj)
+            rev.file_obj = None
+        for item in rev.binary:
+            files.add(item.file_obj)
+            item.file_obj = None
+        for item in files:
+            f.delete(item)
+        DBSession.delete(rev)
+        
+    def delete(self, name, request):
         """
         Delete a page
         Raise GameDepNotFound if page does not exist
         """
         page = self.show(name)[0]
-        page.deleted = True
+        for item in page.revisions:
+            rev_id = item.id
+            self.delete_revision(name, rev_id, request)
+        DBSession.delete(page)
 
     def exists(self, name, version=None, raise_if_found=False):
         """
@@ -285,8 +305,8 @@ class GameDepLib():
         try:
             page = DBSession.query(GameDepPage).filter_by(
                                             name=name,
-                                            gamedeptype=self.gamedep_type, 
-                                            deleted=False).one()
+                                            gamedeptype=self.gamedep_type
+                                            ).one()
         except NoResultFound:
             return False
         
@@ -297,13 +317,6 @@ class GameDepLib():
         if raise_if_found:
             raise GameDepFound
         return True
-
-    def deleted(self, name):
-        """
-        Check to see if page is deleted.
-        """
-        page = self.show(name)[0]
-        return page.deleted
     
     def list_operatingsystems(self, with_display_name=True):
         """
@@ -337,8 +350,7 @@ class GameDepLib():
     
     def dependency_dropdown(self, with_display_name=True):
         result = []
-        page = DBSession.query(GameDepPage).filter_by(deleted=False, 
-                                                      gamedeptype="dep")
+        page = DBSession.query(GameDepPage).filter_by(gamedeptype="dep")
         for x in page:
             if x.revisions.count():
                 i = 0
@@ -385,8 +397,8 @@ class GameDepLib():
             try:
                 page = DBSession.query(GameDepPage).filter_by(
                                                 name=name,
-                                                gamedeptype=self.gamedep_type, 
-                                                deleted=False).one()
+                                                gamedeptype=self.gamedep_type
+                                                ).one()
             except NoResultFound:
                 raise GameDepNotFound("NoResultFound")
             if not page.revisions.count() and no_revision_error:
