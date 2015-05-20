@@ -126,7 +126,8 @@ class GameDepPage(Base):
     display_name = Column(Unicode(128), index=True, nullable=False)
     description = Column(Unicode(16384), default="")
     created = Column(DateTime, default=datetime.now)
-    album_id = Column(Integer, default=-1)
+    thread_id = Column(Integer, nullable=False, default=-1)
+    album_id = Column(Integer, nullable=False, default=-1)
     revisions = relationship(GameDepRevision,
                              cascade="all, delete, delete-orphan",
                              lazy="dynamic",
