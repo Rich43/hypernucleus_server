@@ -1,16 +1,17 @@
-from ..models import GameDepPage, Architectures, OperatingSystems
-from pyracms.models import DBSession
-from pyracms.lib.filelib import FileLib
-from .dicttoxml import dicttoxml
 import json
+
+from pyracms.models import DBSession
+from pyracms.lib.widgetlib import WidgetLib
+
+from ..models import GameDepPage, Architectures, OperatingSystems
+from .dicttoxml import dicttoxml
 
 class OutputLib():
     """
     A library to serialise data from database
     """
     def __init__(self, request):
-        self.uploadurl = '%s/static/%s/' % (request.host_url, 
-                                            FileLib(request).UPLOAD_DIR)
+        self.uploadurl = WidgetLib().get_upload_url(request)
 
     def show_xml(self):
         """
