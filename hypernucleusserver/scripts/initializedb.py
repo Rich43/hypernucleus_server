@@ -93,7 +93,8 @@ def main(argv=sys.argv):
              "A new version (%s) has been updated for %s.",
              "INFO_REVISION_CREATED": 
              "A new version (%s) has been created for %s.",
-             "ERROR_INVALID_BINARY_ID": "Invalid Binary ID and/or Edit Type."}
+             "ERROR_INVALID_BINARY_ID": "Invalid Binary ID and/or Edit Type.",
+             "HYPERNUCLEUS_SERVER":""}
         add_dict(d)
         
         m = MenuLib()
