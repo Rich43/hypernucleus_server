@@ -1,4 +1,5 @@
 from pyracms.lib.filelib import FileLib
+from pyracms.lib.settingslib import SettingsLib
 from ..models import (OperatingSystems, Architectures, GameDepBinary,
     GameDepPage, GameDepRevision, GameDepTags, GameDepDependency, GameDepVotes)
 from pyracms.lib.taglib import TagLib, GAMEDEP
@@ -92,6 +93,15 @@ class GameDepLib():
             page = GameDepPage(self.gamedep_type, name, display_name, owner)
             page.description = description
             self.t.set_tags(page, tags)
+            s = SettingsLib()
+            if s.has_setting("PYRACMS_FORUM"):
+                from pyracms_forum.lib.boardlib import BoardLib
+                page.thread_id = BoardLib().add_thread(name, display_name, "",
+                                                       owner, add_post=False).id
+            if s.has_setting("PYRACMS_GALLERY"):
+                from pyracms_gallery.lib.gallerylib import GalleryLib
+                album = GalleryLib().create_album(name, display_name, owner)
+                page.album_id = album
             DBSession.add(page)
 
     def update(self, name, newname, display_name, description, tags):
@@ -200,7 +210,6 @@ class GameDepLib():
         if binitem:
             rev.binary.remove(binitem)
             DBSession.delete(binitem)
-    
         else:
             raise GameDepNotFound
 
@@ -295,6 +304,12 @@ class GameDepLib():
         for item in page.revisions:
             rev_id = item.id
             self.delete_revision(name, rev_id, request)
+        if page.thread_id != -1:
+            from pyracms_forum.lib.boardlib import BoardLib
+            BoardLib().delete_thread(page.thread_id)
+        if page.album_id != -1:
+            from pyracms_gallery.lib.gallerylib import GalleryLib
+            GalleryLib().delete_album(page.album_id, request)
         DBSession.delete(page)
 
     def exists(self, name, version=None, raise_if_found=False):
