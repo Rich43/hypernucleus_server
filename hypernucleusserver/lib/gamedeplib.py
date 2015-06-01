@@ -7,6 +7,7 @@ from pyracms.models import DBSession, Files
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 import transaction
+from os.path import join
 
 class GameDepNotFound(Exception):
     pass
@@ -84,7 +85,7 @@ class GameDepLib():
             result.add(gamedep.name)
         return result
     
-    def create(self, name, display_name, description, tags, owner):
+    def create(self, name, display_name, description, tags, owner, request):
         """
         Add a new page
         Raise GameDepFound if page exists
@@ -100,8 +101,15 @@ class GameDepLib():
                                                        owner, add_post=False).id
             if s.has_setting("PYRACMS_GALLERY"):
                 from pyracms_gallery.lib.gallerylib import GalleryLib
-                album = GalleryLib().create_album(name, display_name, owner)
+                g = GalleryLib()
+                album = g.create_album(name, display_name, owner)
                 page.album_id = album
+                path = join(FileLib(request).get_static_path(), "blank.jpg")
+                page.picture_id = g.create_picture(g.show_album(album),
+                                                   open(path, "rb"),
+                                                   "image/jpeg", "blank.jpg",
+                                                   owner, request,
+                                                   "Dummy Image")
             DBSession.add(page)
 
     def update(self, name, newname, display_name, description, tags):

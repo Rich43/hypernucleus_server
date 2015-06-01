@@ -96,7 +96,11 @@ def gamedep_item(context, request):
         dbpage, dbrevision = g.show(page_id, revision, False)
         result = {'page_id': page_id, 'revision': revision,
                   'dbpage': dbpage, 'dbrevision': dbrevision,
-                  'type': gamedeptype}
+                  'type': gamedeptype, "thread_enabled": False}
+        if dbpage.thread_id != -1:
+            from pyracms_forum.views import get_thread
+            result.update(get_thread(context, request, dbpage.thread_id))
+            result.update({"thread_enabled": True})
         return result
     except GameDepNotFound:
         return HTTPFound(location=route_url("gamedep_edit",
@@ -121,7 +125,7 @@ def gamedep_edit(context, request):
                                   % page_id, INFO)
         else:
             g.create(name, display_name, description, tags,
-                     u.show(get_username(request)))
+                     u.show(get_username(request)), request)
             request.session.flash(s.show_setting("INFO_CREATED")
                                   % page_id, INFO)
         return redirect(request, "gamedep_item", page_id=name,
