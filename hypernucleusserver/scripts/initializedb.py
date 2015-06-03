@@ -1,3 +1,4 @@
+from pyracms.lib.settingslib import SettingsLib
 from ..models import OperatingSystems, Architectures
 from pyracms.factory import RootFactory
 from pyracms.lib.menulib import MenuLib
@@ -26,8 +27,6 @@ def main(argv=sys.argv):
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
     with transaction.manager:
-        u = UserLib()
-        admin_user = u.show("admin")
         # Add Operating Systems
         DBSession.add(OperatingSystems("pi", "Platform Independent"))
         DBSession.add(OperatingSystems("win", "Windows"))
@@ -50,8 +49,9 @@ def main(argv=sys.argv):
         DBSession.add(Architectures("sparc64", "64bit SPARC"))
     
         # Default Groups
+        u = UserLib()
         u.create_group("gamedep", "Ability to Add, Edit and Delete" +
-                       " games and dependencies.", [admin_user])
+                       " games and dependencies.")
         
         # Default ACL
         acl = RootFactory()
@@ -73,30 +73,28 @@ def main(argv=sys.argv):
         acl.__acl__.append((Allow, "group:gamedep", 'gamedep_delete_dependency'))
         acl.__acl__.append((Allow, "group:gamedep", 'gamedep_edit_revision'))
         
-        def add_dict(d):
-            for k, v in d.items():
-                if not v:
-                    DBSession.add(Settings(k))
-                else:
-                    DBSession.add(Settings(k, v))
-        
-        d = {"INFO_PIC_ADDED": "Your picture (%s) has been added.",
-             "INFO_PIC_DELETED": "Your picture (%s) has been deleted.",
-             "INFO_BINARY_ADDED": "Your binary (%s) has been added.",
-             "INFO_BINARY_UPDATED": "Your binary (%s) has been updated.",
-             "INFO_BINARY_DELETED": "Your binary (%s) has been deleted.",
-             "INFO_SOURCE_UPLOADED": 
-             "The source code (%s) has been successfully uploaded.",
-             "INFO_DEPENDENCY_ADDED": "Your dependency (%s) has been added.",
-             "INFO_DEPENDENCY_DELETED": "Your dependency (%s) has been deleted.",
-             "INFO_REVISION_UPDATED": 
-             "A new version (%s) has been updated for %s.",
-             "INFO_REVISION_CREATED": 
-             "A new version (%s) has been created for %s.",
-             "ERROR_INVALID_BINARY_ID": "Invalid Binary ID and/or Edit Type.",
-             "HYPERNUCLEUS_SERVER":""}
-        add_dict(d)
-        
+        s = SettingsLib()
+        s.update("DEFAULTGROUPS", s.show_setting("DEFAULTGROUPS") + 
+                 "gamedep\n")
+        s.create("INFO_PIC_ADDED", "Your picture (%s) has been added.")
+        s.create("INFO_PIC_DELETED", "Your picture (%s) has been deleted.")
+        s.create("INFO_BINARY_ADDED", "Your binary (%s) has been added.")
+        s.create("INFO_BINARY_UPDATED", "Your binary (%s) has been updated.")
+        s.create("INFO_BINARY_DELETED", "Your binary (%s) has been deleted.")
+        s.create("INFO_SOURCE_UPLOADED", "The source code (%s) has been "
+                                         "successfully uploaded.")
+        s.create("INFO_DEPENDENCY_ADDED",
+                 "Your dependency (%s) has been added.")
+        s.create("INFO_DEPENDENCY_DELETED",
+                 "Your dependency (%s) has been deleted.")
+        s.create("INFO_REVISION_UPDATED", "A new version (%s) has been "
+                                          "updated for %s.")
+        s.create("INFO_REVISION_CREATED", "A new version (%s) has been "
+                                          "created for %s.")
+        s.create("ERROR_INVALID_BINARY_ID",
+                 "Invalid Binary ID and/or Edit Type.")
+        s.create("HYPERNUCLEUS_SERVER")
+
         m = MenuLib()
         group = m.show_group("main_menu")
         DBSession.add(Menu("Games", "/gamedep/game/list", 3, group, Everyone))
