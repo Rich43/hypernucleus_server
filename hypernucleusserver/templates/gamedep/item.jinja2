@@ -1,4 +1,7 @@
 {% extends "main.jinja2" %}
+{% if thread_enabled %}
+{% from "pyracms_forum:templates/widgets/comments.jinja2" import comments %}
+{% endif %}
 {% block title %} - Viewing {{ page_id }}{% endblock %}
 {% block content %}
     <p>{{ dbpage.id }} </p>
@@ -63,4 +66,7 @@
         <a href="/gamedep/{{ type }}/edit/{{ page_id }}">Edit</a> | 
         <a href="/gamedep/{{ type }}/delete/{{ page_id }}">Delete</a>
     </p>
+    {%  if thread_enabled %}
+    {{ comments(request, thread, form, forum_reply, w) }}
+    {% endif %}
 {% endblock %}
