@@ -97,6 +97,6 @@ def main(argv=sys.argv):
 
         m = MenuLib()
         group = m.show_group("main_menu")
-        DBSession.add(Menu("Games", "/gamedep/game/list", 3, group, Everyone))
-        DBSession.add(Menu("Dependencies", "/gamedep/dep/list", 4, 
-                         group, Everyone))
+        m.add_menu_item_url("Games", "/gamedep/game/list", 3, group, Everyone)
+        m.add_menu_item_url("Dependencies", "/gamedep/dep/list", 4,
+                            group, Everyone)
