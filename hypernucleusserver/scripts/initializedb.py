@@ -1,5 +1,6 @@
 from pyracms.lib.settingslib import SettingsLib
 from ..models import OperatingSystems, Architectures
+from ..lib.gamedeplib import GAME, DEP
 from pyracms.factory import RootFactory
 from pyracms.lib.menulib import MenuLib
 from pyracms.lib.userlib import UserLib
@@ -97,6 +98,7 @@ def main(argv=sys.argv):
 
         m = MenuLib()
         group = m.show_group("main_menu")
-        m.add_menu_item_url("Games", "/gamedep/game/list", 3, group, Everyone)
-        m.add_menu_item_url("Dependencies", "/gamedep/dep/list", 4,
-                            group, Everyone)
+        m.add_menu_item_route("Games", "gamedeplist", 3, group, Everyone,
+                              {"type": GAME})
+        m.add_menu_item_route("Dependencies", "gamedeplist", 4,
+                              group, Everyone, {"type": DEP})
