@@ -7,7 +7,8 @@ from pyracms.lib.settingslib import SettingsLib
 from pyracms.lib.userlib import UserLib
 from pyracms.views import INFO, ERROR
 from pyramid.exceptions import NotFound
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden
+from pyramid.security import has_permission
 from pyramid.url import route_url, current_route_url
 from pyramid.view import view_config
 from pyracms.models import DBSession
@@ -27,6 +28,16 @@ from .models import GameDepTags
 u = UserLib()
 s = SettingsLib()
 
+def check_owner(context, request):
+    page_id = request.matchdict.get('page_id')
+    gamedeptype = request.matchdict.get('type')
+    g = GameDepLib(gamedeptype)
+    page = g.show(page_id)
+    if (has_permission('gamedep_mod', context, request) or
+        page.owner == u.show(get_username(request))):
+        return True
+    else:
+        raise HTTPForbidden
 
 def get_pageid_revision(request):
     """
@@ -79,6 +90,7 @@ def gamedep_published(context, request):
     g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
+    check_owner(context, request)
     g.flip_published(page_id, revision)
     return HTTPFound(location=route_url("gamedep_item", request,
                                         type=gamedeptype,
@@ -111,6 +123,7 @@ def gamedep_item(context, request):
 @view_config(route_name='gamedep_edit', permission='gamedep_edit',
              renderer='gamedep/edit.jinja2')
 def gamedep_edit(context, request):
+    check_owner(context, request)
     def gamedep_edit_submit(context, request, deserialized, bind_params):
         page_id = get_pageid_revision(request)[0]
         gamedeptype = request.matchdict.get('type')
@@ -154,6 +167,7 @@ def gamedep_edit(context, request):
 
 @view_config(route_name='gamedep_delete', permission='gamedep_delete')
 def gamedep_delete(context, request):
+    check_owner(context, request)
     page_id = request.matchdict.get('page_id')
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
@@ -169,6 +183,7 @@ def gamedep_delete(context, request):
 @view_config(route_name='gamedep_add_src', permission='gamedep_add_source',
              renderer='gamedep/edit.jinja2')
 def gamedep_add_source(context, request):
+    check_owner(context, request)
     def gamedep_add_source_submit(context, request, deserialized,
                                   bind_params):
         page_id, revision = get_pageid_revision(request)
@@ -212,6 +227,7 @@ def gamedep_add_source(context, request):
              renderer='gamedep/edit.jinja2',
              permission='gamedep_edit_binary')
 def gamedep_add_binary(context, request):
+    check_owner(context, request)
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
     page_id = request.matchdict.get('page_id')
@@ -278,6 +294,7 @@ def gamedep_add_binary(context, request):
 @view_config(route_name='gamedep_del_bin',
              permission='gamedep_delete_binary')
 def gamedep_delete_binary(context, request):
+    check_owner(context, request)
     gamedeptype = request.matchdict.get('type')
     binid = request.matchdict.get('binary_id')
     g = GameDepLib(gamedeptype)
@@ -303,6 +320,7 @@ def gamedep_delete_binary(context, request):
              renderer='gamedep/edit.jinja2',
              permission='gamedep_add_dependency')
 def gamedep_add_dependency(context, request):
+    check_owner(context, request)
     def gamedep_add_dependency_submit(context, request, deserialized,
                                       bind_params):
         gamedeptype = request.matchdict.get('type')
@@ -341,6 +359,7 @@ def gamedep_add_dependency(context, request):
              renderer='gamedep/item.jinja2',
              permission='gamedep_delete_dependency')
 def gamedep_delete_dependency(context, request):
+    check_owner(context, request)
     gamedeptype = request.matchdict.get('type')
     depid = request.matchdict.get('depid')
     g = GameDepLib(gamedeptype)
@@ -365,6 +384,7 @@ def gamedep_delete_dependency(context, request):
              renderer='gamedep/edit.jinja2',
              permission='gamedep_edit_revision')
 def gamedep_edit_revision(context, request):
+    check_owner(context, request)
     def gamedep_edit_revision_submit(context, request, deserialized,
                                      bind_params):
         page_id, revision = get_pageid_revision(request)
@@ -406,6 +426,7 @@ def gamedep_edit_revision(context, request):
 @view_config(route_name='gamedep_delete_revision',
              permission='gamedep_delete')
 def gamedep_delete_revision(context, request):
+    check_owner(context, request)
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     gamedeptype = request.matchdict.get('type')

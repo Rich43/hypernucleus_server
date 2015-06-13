@@ -58,6 +58,7 @@ def main(argv=sys.argv):
         acl = RootFactory()
         acl.__acl__.append((Allow, Everyone, 'gamedep_view'))
         acl.__acl__.append((Allow, Everyone, 'gamedep_list'))
+        acl.__acl__.append((Allow, "group:admin", 'gamedep_mod'))
         acl.__acl__.append((Allow, "group:gamedep", "group:gamedep"))
         acl.__acl__.append((Allow, "group:gamedep", 'gamedep_view'))
         acl.__acl__.append((Allow, "group:gamedep", 'gamedep_list'))
