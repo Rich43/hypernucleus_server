@@ -340,7 +340,8 @@ def gamedep_add_dependency(context, request):
                 g.create_dependency(page_id, dep_id)
             else:
                 g.create_dependency(page_id, dep_id, form_rev_id)
-            dep_name = g.show_dependency(g.show(page_id)[0],
+            dep_name = g.show_dependency(g.show(page_id,
+                                                no_revision_error=False)[0],
                                          dep_id).page.name
             request.session.flash(s.show_setting("INFO_DEPENDENCY_ADDED")
                                   % dep_name, INFO)

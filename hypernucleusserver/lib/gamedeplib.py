@@ -221,7 +221,7 @@ class GameDepLib():
         else:
             raise GameDepNotFound
 
-    def create_dependency(self, name, dep_id, rev_id):
+    def create_dependency(self, name, dep_id, rev_id=-1):
         """
         Add a new dependency
         """
@@ -229,14 +229,20 @@ class GameDepLib():
         try:
             dep = DBSession.query(GameDepPage).filter_by(gamedeptype="dep", 
                                                          id=dep_id).one()
-            rev = DBSession.query(GameDepRevision).filter_by(
-                                        id=rev_id).one()
+            if rev_id != -1:
+                rev = DBSession.query(GameDepRevision).filter_by(
+                                            id=rev_id).one()
+            else:
+                if dep.revisions.count() > 0:
+                    rev = dep.revisions[0]
+                else:
+                    raise GameDepNotFound
             if not rev in dep.revisions:
                 raise GameDepNotFound
         except NoResultFound:
             raise GameDepNotFound
         
-        page = self.show(name)[0]
+        page = self.show(name, no_revision_error=False)[0]
         for pagedep in page.dependencies:
             if pagedep.page.id == dep.id:
                 raise GameDepFound
