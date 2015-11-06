@@ -32,12 +32,15 @@ def check_owner(context, request):
     page_id = request.matchdict.get('page_id')
     gamedeptype = request.matchdict.get('type')
     g = GameDepLib(gamedeptype)
-    page = g.show(page_id)
-    if (has_permission('gamedep_mod', context, request) or
-        page.owner == u.show(get_username(request))):
+    try:
+        page = g.show(page_id)
+        if (has_permission('gamedep_mod', context, request) or
+            page.owner == u.show(get_username(request))):
+            return True
+        else:
+            raise HTTPForbidden
+    except GameDepNotFound:
         return True
-    else:
-        raise HTTPForbidden
 
 def get_pageid_revision(request):
     """
