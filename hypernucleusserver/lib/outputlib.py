@@ -30,10 +30,9 @@ class OutputLib():
         key = None
         gametype = "game"
         deptype = "dep"
-        game = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype=gametype, deleted=False).all()
-        dep = DBSession.query(GameDepPage).filter_by(
-                        gamedeptype=deptype, deleted=False).all()
+        game = DBSession.query(GameDepPage).filter_by(gamedeptype=gametype
+                                                      ).all()
+        dep = DBSession.query(GameDepPage).filter_by(gamedeptype=deptype).all()
         oslist = DBSession.query(OperatingSystems)
         archlist = DBSession.query(Architectures)
         for os in oslist:
