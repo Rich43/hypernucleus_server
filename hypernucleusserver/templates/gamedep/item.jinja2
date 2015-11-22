@@ -15,6 +15,14 @@
         Project description: {{ dbpage.description }}
     </p>
     <p>
+        {% set album = w.get_gallerylib().show_album(dbpage.album_id) %}
+        {% set pic = album.pictures.one() %}
+        <a href="{{ request.route_url("show_album", album_id=album.id) }}">
+        <img src="{{ w.get_upload_url(request) }}{{ pic.file_obj.uuid }}/{{ w
+        .splitext(pic.file_obj.name)[0] }}.thumbnail.png">
+        </a>
+    </p>
+    <p>
         Dependency list (<a href="/gamedep/{{ type }}/adddep/{{ page_id }}">Add</a>):
         {% for dep in dbpage.dependencies %}
         <ul>
@@ -44,7 +52,11 @@
                 {%- endif %}</a>)
             </li>
             {% if type == "game" %}
-            <li>Source Code (<a href="/gamedep/{{ type }}/addsrc/{{ page_id }}/{{ rev.id }}">Edit</a>): {{ rev.file_obj.name }}</li>
+            <li>Source Code (<a href="/gamedep/{{ type }}/addsrc/{{ page_id
+                    }}/{{ rev.id }}">Edit</a>):
+                <a href="{{ w.get_upload_url(request) }}{{ rev.file_obj.uuid }}/{{ rev.file_obj.name }}">
+                    {{ rev.file_obj.name }}</a>
+            </li>
             {% endif %}
             <li>Binarys (<a href="/gamedep/{{ type }}/addbin/{{ page_id }}/{{ rev.id }}">Add</a>)</li>
             {% for bin in rev.binary %}
