@@ -1,6 +1,7 @@
 {% extends "main.jinja2" %}
 {% if thread_enabled %}
 {% from "pyracms_forum:templates/widgets/comments.jinja2" import comments %}
+{% from "pyracms_gallery:templates/widgets/avatar.jinja2" import avatar %}
 {% endif %}
 {% block title %} - Viewing {{ page_id }}{% endblock %}
 {% block content %}
@@ -15,12 +16,7 @@
         Project description: {{ dbpage.description }}
     </p>
     <p>
-        {% set album = w.get_gallerylib().show_album(dbpage.album_id) %}
-        {% set pic = album.pictures.one() %}
-        <a href="{{ request.route_url("show_album", album_id=album.id) }}">
-        <img src="{{ w.get_upload_url(request) }}{{ pic.file_obj.uuid }}/{{ w
-        .splitext(pic.file_obj.name)[0] }}.thumbnail.png">
-        </a>
+        {{ avatar(dbpage.album_id, w, request) }}
     </p>
     <p>
         Dependency list (<a href="/gamedep/{{ type }}/adddep/{{ page_id }}">Add</a>):
