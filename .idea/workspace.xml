@@ -49,7 +49,7 @@
         <entry file="file://$PROJECT_DIR$/hypernucleusserver/scripts/initializedb.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="63" column="68" selection-start-line="63" selection-start-column="68" selection-end-line="63" selection-end-column="68" />
+              <caret line="97" column="39" selection-start-line="97" selection-start-column="17" selection-end-line="97" selection-end-column="44" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
               </folding>
@@ -67,11 +67,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/hypernucleusserver/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="343" column="71" selection-start-line="343" selection-start-column="71" selection-end-line="343" selection-end-column="71" />
+            <state vertical-scroll-proportion="0.51336896">
+              <caret line="104" column="36" selection-start-line="104" selection-start-column="36" selection-end-line="104" selection-end-column="36" />
               <folding>
                 <element signature="e#0#27#0" expanded="true" />
               </folding>
@@ -83,7 +83,7 @@
         <entry file="file://$PROJECT_DIR$/hypernucleusserver/lib/gamedeplib.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="129" column="40" selection-start-line="129" selection-start-column="40" selection-end-line="129" selection-end-column="40" />
+              <caret line="127" column="34" selection-start-line="127" selection-start-column="34" selection-end-line="127" selection-end-column="34" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -94,27 +94,17 @@
       <file leaf-file-name="list.jinja2" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hypernucleusserver/templates/gamedep/list.jinja2">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="-0.0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hypernucleusserver/models.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="121" column="30" selection-start-line="121" selection-start-column="25" selection-end-line="121" selection-end-column="44" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="item.jinja2" pinned="false" current-in-tab="true">
+      <file leaf-file-name="item.jinja2" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hypernucleusserver/templates/gamedep/item.jinja2">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2963776">
+            <state vertical-scroll-proportion="-11.25">
               <caret line="18" column="45" selection-start-line="18" selection-start-column="45" selection-end-line="18" selection-end-column="45" />
               <folding />
             </state>
@@ -128,11 +118,11 @@
       <list>
         <option value="$PROJECT_DIR$/hypernucleusserver/deform_schemas/gamedep.py" />
         <option value="$PROJECT_DIR$/hypernucleusserver/models.py" />
-        <option value="$PROJECT_DIR$/hypernucleusserver/scripts/initializedb.py" />
-        <option value="$PROJECT_DIR$/hypernucleusserver/lib/gamedeplib.py" />
-        <option value="$PROJECT_DIR$/hypernucleusserver/views.py" />
         <option value="$PROJECT_DIR$/hypernucleusserver/lib/outputlib.py" />
         <option value="$PROJECT_DIR$/hypernucleusserver/templates/gamedep/item.jinja2" />
+        <option value="$PROJECT_DIR$/hypernucleusserver/lib/gamedeplib.py" />
+        <option value="$PROJECT_DIR$/hypernucleusserver/scripts/initializedb.py" />
+        <option value="$PROJECT_DIR$/hypernucleusserver/views.py" />
       </list>
     </option>
   </component>
@@ -172,8 +162,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -230,6 +218,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -518,7 +508,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1" y="25" width="1922" height="1056" extended-state="6" />
+    <frame x="-1" y="25" width="1922" height="1056" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17708333" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -906,34 +896,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hypernucleusserver/scripts/initializedb.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="63" column="68" selection-start-line="63" selection-start-column="68" selection-end-line="63" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#47#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hypernucleusserver/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="121" column="30" selection-start-line="121" selection-start-column="25" selection-end-line="121" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hypernucleusserver/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="343" column="71" selection-start-line="343" selection-start-column="71" selection-end-line="343" selection-end-column="71" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hypernucleusserver/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -946,6 +908,22 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="9" column="24" selection-start-line="9" selection-start-column="24" selection-end-line="9" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hypernucleusserver/templates/gamedep/item.jinja2">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-11.25">
+          <caret line="18" column="45" selection-start-line="18" selection-start-column="45" selection-end-line="18" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hypernucleusserver/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8983957">
+          <caret line="121" column="30" selection-start-line="121" selection-start-column="25" selection-end-line="121" selection-end-column="44" />
           <folding />
         </state>
       </provider>
@@ -966,21 +944,33 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/hypernucleusserver/scripts/initializedb.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="97" column="39" selection-start-line="97" selection-start-column="17" selection-end-line="97" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/hypernucleusserver/lib/gamedeplib.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="129" column="40" selection-start-line="129" selection-start-column="40" selection-end-line="129" selection-end-column="40" />
+          <caret line="127" column="34" selection-start-line="127" selection-start-column="34" selection-end-line="127" selection-end-column="34" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hypernucleusserver/templates/gamedep/item.jinja2">
+    <entry file="file://$PROJECT_DIR$/hypernucleusserver/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2963776">
-          <caret line="18" column="45" selection-start-line="18" selection-start-column="45" selection-end-line="18" selection-end-column="45" />
-          <folding />
+        <state vertical-scroll-proportion="0.51336896">
+          <caret line="104" column="36" selection-start-line="104" selection-start-column="36" selection-end-line="104" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -314,7 +314,7 @@ class GameDepLib():
         Delete a page
         Raise GameDepNotFound if page does not exist
         """
-        page = self.show(name)[0]
+        page = self.show(name, no_revision_error=False)[0]
         for item in page.revisions:
             rev_id = item.id
             self.delete_revision(name, rev_id, request)

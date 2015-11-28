@@ -21,7 +21,8 @@ from .deform_schemas.gamedep import (EditGameDepSchema, AddSourceSchema,
                                      EditDependencySchemaTwo,
                                      EditRevisionSchema)
 from .lib.gamedeplib import (AlreadyVoted, GAME, DEP, GameDepLib,
-                             GameDepNotFound)
+                             GameDepNotFound, GameDepFound, BinaryNotFound,
+                             SourceCodeNotFound)
 from .lib.outputlib import OutputLib
 from .models import GameDepTags
 
@@ -94,7 +95,14 @@ def gamedep_published(context, request):
     page_id = request.matchdict.get('page_id')
     revision = request.matchdict.get('revision')
     check_owner(context, request)
-    g.flip_published(page_id, revision)
+    try:
+        g.flip_published(page_id, revision)
+    except BinaryNotFound:
+        request.session.flash(s.show_setting("ERROR_NOT_UPLOADED_BINARY"),
+                              ERROR)
+    except SourceCodeNotFound:
+        request.session.flash(s.show_setting("ERROR_NOT_UPLOADED_SOURCE_CODE"),
+                              ERROR)
     return HTTPFound(location=route_url("gamedep_item", request,
                                         type=gamedeptype,
                                         page_id=page_id))
@@ -176,7 +184,7 @@ def gamedep_delete(context, request):
     g = GameDepLib(gamedeptype)
     if g.exists(page_id):
         g.delete(page_id, request)
-        request.session.flash(s.show_setting("INFO_DELETED"), INFO)
+        request.session.flash(s.show_setting("INFO_DELETED") % page_id, INFO)
     else:
         request.session.flash(s.show_setting("ERROR_NOT_FOUND")
                               % page_id, ERROR)
@@ -401,9 +409,14 @@ def gamedep_edit_revision(context, request):
             request.session.flash(s.show_setting("INFO_REVISION_UPDATED")
                                   % (frmversion, page_id), INFO)
         else:
-            g.create_revision(page_id, frmversion, frmmodule_type)
-            request.session.flash(s.show_setting("INFO_REVISION_CREATED")
-                                  % (frmversion, page_id), INFO)
+            try:
+                g.create_revision(page_id, frmversion, frmmodule_type)
+                request.session.flash(s.show_setting("INFO_REVISION_CREATED")
+                                        % (frmversion, page_id), INFO)
+            except GameDepFound:
+                request.session.flash(s.show_setting("ERROR_FOUND")
+                                        % frmversion, ERROR)
+
         return redirect(request, "gamedep_item", page_id=page_id,
                         type=gamedeptype)
 
@@ -415,8 +428,8 @@ def gamedep_edit_revision(context, request):
     if revision:
         update = True
         dbrevision = g.show(page_id, revision)[1]
-        dbversion = dbrevision[0].version
-        dbmoduletype_name = dbrevision[0].moduletype
+        dbversion = dbrevision.version
+        dbmoduletype_name = dbrevision.moduletype
     else:
         dbrevision = None
         dbversion = 0.1

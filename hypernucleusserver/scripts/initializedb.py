@@ -95,6 +95,10 @@ def main(argv=sys.argv):
                                           "created for %s.")
         s.create("ERROR_INVALID_BINARY_ID",
                  "Invalid Binary ID and/or Edit Type.")
+        s.create("ERROR_NOT_UPLOADED_BINARY",
+                 "You have not uploaded any binaries.")
+        s.create("ERROR_NOT_UPLOADED_SOURCE_CODE",
+                 "You have not uploaded any source code.")
         s.create("HYPERNUCLEUS_SERVER")
 
         m = MenuLib()
