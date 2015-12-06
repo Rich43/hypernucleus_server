@@ -104,12 +104,6 @@ class GameDepLib():
                 g = GalleryLib()
                 album = g.create_album(name, display_name, owner)
                 page.album_id = album
-                path = join(FileLib(request).get_static_path(), "blank.jpg")
-                page.picture_id = g.create_picture(g.show_album(album),
-                                                   open(path, "rb"),
-                                                   "image/jpeg", "blank.jpg",
-                                                   owner, request,
-                                                   "Dummy Image")
             DBSession.add(page)
 
     def update(self, name, newname, display_name, description, tags):

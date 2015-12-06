@@ -1,10 +1,11 @@
 import json
 
-from pyracms.models import DBSession
+from pyracms.lib.settingslib import SettingsLib
 from pyracms.lib.widgetlib import WidgetLib
+from pyracms.models import DBSession
 
-from ..models import GameDepPage, Architectures, OperatingSystems
 from .dicttoxml import dicttoxml
+from ..models import GameDepPage, Architectures, OperatingSystems
 
 class OutputLib():
     """
@@ -12,6 +13,10 @@ class OutputLib():
     """
     def __init__(self, request):
         self.uploadurl = WidgetLib().get_upload_url(request)
+        self.gallery = None
+        if SettingsLib().has_setting("PYRACMS_GALLERY"):
+            from pyracms_gallery.lib.gallerylib import GalleryLib
+            self.gallery = GalleryLib()
 
     def show_xml(self):
         """
@@ -72,7 +77,19 @@ class OutputLib():
                     gamedepdict["dependencies"].append(depdict)
                 gamedepdict["tags"] = []
                 for looptag in item.tags:
-                    gamedepdict["tags"].append(looptag.name)
+                    if looptag.name.strip():
+                        gamedepdict["tags"].append(looptag.name)
+                gamedepdict["pictures"] = []
+                if self.gallery:
+                    album = self.gallery.show_album(item.album_id)
+                    for pic in album.pictures:
+                        picture = {}
+                        picture['url'] = (self.uploadurl + pic.file_obj.uuid +
+                                          "/" + pic.file_obj.name)
+                        picture['default'] = False
+                        if album.default_picture == pic:
+                            picture['default'] = True
+                        gamedepdict["pictures"].append(picture)
                 gamedepdict["revisions"] = []
                 for looprev in item.revisions:
                     if looprev.published:
