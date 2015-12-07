@@ -89,6 +89,8 @@ class OutputLib():
                         picture['default'] = False
                         picture['display_name'] = pic.display_name
                         picture['description'] = pic.description
+                        picture['uuid'] = pic.file_obj.uuid
+                        picture['name'] = pic.file_obj.name
                         if album.default_picture == pic:
                             picture['default'] = True
                         gamedepdict["pictures"].append(picture)
@@ -103,6 +105,8 @@ class OutputLib():
                             revdict["source"]=  self.uploadurl + \
                                                 looprev.file_obj.uuid \
                                                 + "/" + looprev.file_obj.name
+                            bindict['source_uuid'] = looprev.file_obj.uuid
+                            bindict['source_name'] = looprev.file_obj.name
                         revdict["binaries"] = []
                         for loopbin in looprev.binary:
                             bindict = {}
@@ -113,6 +117,8 @@ class OutputLib():
                                             loopbin.operatingsystem_obj.name
                             bindict["architecture"] = \
                                             loopbin.architecture_obj.name
+                            bindict['uuid'] = loopbin.file_obj.uuid
+                            bindict['name'] = loopbin.file_obj.name
                             revdict["binaries"].append(bindict)
                         gamedepdict["revisions"].append(revdict)
                 root["gamedep"].append({key: gamedepdict})
