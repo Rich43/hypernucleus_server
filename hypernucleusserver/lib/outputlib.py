@@ -87,6 +87,8 @@ class OutputLib():
                         picture['url'] = (self.uploadurl + pic.file_obj.uuid +
                                           "/" + pic.file_obj.name)
                         picture['default'] = False
+                        picture['display_name'] = pic.display_name
+                        picture['description'] = pic.description
                         if album.default_picture == pic:
                             picture['default'] = True
                         gamedepdict["pictures"].append(picture)
