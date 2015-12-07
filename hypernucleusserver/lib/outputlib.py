@@ -105,8 +105,8 @@ class OutputLib():
                             revdict["source"]=  self.uploadurl + \
                                                 looprev.file_obj.uuid \
                                                 + "/" + looprev.file_obj.name
-                            bindict['source_uuid'] = looprev.file_obj.uuid
-                            bindict['source_name'] = looprev.file_obj.name
+                            revdict['source_uuid'] = looprev.file_obj.uuid
+                            revdict['source_name'] = looprev.file_obj.name
                         revdict["binaries"] = []
                         for loopbin in looprev.binary:
                             bindict = {}
