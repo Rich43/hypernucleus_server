@@ -6,6 +6,7 @@ from pyracms.models import DBSession
 
 from .dicttoxml import dicttoxml
 from ..models import GameDepPage, Architectures, OperatingSystems
+from os.path import splitext
 
 class OutputLib():
     """
@@ -86,6 +87,12 @@ class OutputLib():
                         picture = {}
                         picture['url'] = (self.uploadurl + pic.file_obj.uuid +
                                           "/" + pic.file_obj.name)
+                        thumb_name = (splitext(pic.file_obj.name)[0] +
+                                      ".thumbnail.png")
+                        picture['thumb_url'] = (self.uploadurl +
+                                                pic.file_obj.uuid +
+                                                "/" + thumb_name)
+                        picture['thumb_name'] = thumb_name
                         picture['default'] = False
                         picture['display_name'] = pic.display_name
                         picture['description'] = pic.description
