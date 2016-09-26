@@ -39,3 +39,4 @@ def includeme(config):
     config.add_route('gamedep_add_vote', 
                      '/vote/gamedep/{type}/{vote_id}/{like}')
     config.scan('hypernucleusserver.views')
+    config.scan('hypernucleusserver.web_service_views')

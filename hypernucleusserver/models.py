@@ -1,5 +1,5 @@
 from datetime import datetime
-from pyracms.models import Files, User, Base
+from pyracms.models import Files, User, Base, JsonBase
 from sqlalchemy import (Column, Integer, Unicode, DateTime, Boolean, Float, desc, 
     Enum)
 from sqlalchemy.orm import relationship
@@ -79,10 +79,11 @@ class GameDepBinary(Base):
         self.operatingsystem_obj = operatingsystem_obj
         self.architecture_obj = architecture_obj
         
-class GameDepRevision(Base):
+class GameDepRevision(Base, JsonBase):
     __tablename__ = 'gamedeprevision'
     __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
-    
+    __json__ = ["moduletype", "version", "published"]
+
     id = Column(Integer, primary_key=True)
     page_id = Column(Integer, ForeignKey('gamedeppage.id'), nullable=False)
     file_id = Column(Integer, ForeignKey('files.id'), nullable=True)
@@ -114,10 +115,12 @@ class GameDepDependency(Base):
         self.page_obj = page_obj
         self.rev_obj = rev_obj
 
-class GameDepPage(Base):
+class GameDepPage(Base, JsonBase):
     __tablename__ = 'gamedeppage'
     __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
-    
+    __json__ = ["name", "display_name", "gamedeptype", "description",
+                "view_count"]
+
     id = Column(Integer, primary_key=True)
     gamedeptype = Column(Enum("game", "dep"), nullable=False)
     owner_id = Column(Integer, ForeignKey('user.id'), nullable=False)
@@ -128,6 +131,7 @@ class GameDepPage(Base):
     created = Column(DateTime, default=datetime.now)
     thread_id = Column(Integer, nullable=False, default=-1)
     album_id = Column(Integer, nullable=False, default=-1)
+    view_count = Column(Integer, default=0, index=True)
     revisions = relationship(GameDepRevision,
                              cascade="all, delete, delete-orphan",
                              lazy="dynamic",
