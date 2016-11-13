@@ -4,3 +4,4 @@ dev.ini
 whoosh_index
 hypernucleus_server.egg-info
 pyracms.db
+.idea

@@ -92,6 +92,7 @@ class GameDepRevision(Base, JsonBase):
     version = Column(Float(), default=0.1, index=True, nullable=False)
     created = Column(DateTime, default=datetime.now)
     published = Column(Boolean, default=False, index=True)
+    page_obj = relationship("GameDepPage", uselist=False)
     file_obj = relationship(Files, uselist=False)
     binary = relationship(GameDepBinary, cascade="all, delete")
     
