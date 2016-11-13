@@ -262,6 +262,7 @@ class GameDepLib():
         page = self.show(name)[0]
         item = self.show_dependency(page, dep_id)
         page.dependencies.remove(item)
+        DBSession.flush()
         DBSession.delete(item)
         
     def create_revision(self, name, version, moduletype):
