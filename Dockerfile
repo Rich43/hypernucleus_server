@@ -9,4 +9,4 @@ RUN pip install -r requirements.txt
 
 COPY . /code/hypernucleusserver
 
-RUN python setup.py install
+RUN python setup.py bdist_wheel
